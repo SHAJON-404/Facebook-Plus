@@ -12,18 +12,18 @@
 "row.nogroups.title" = "移除社團推薦";
 "row.nogroups.desc" = "隱藏「你可以加入的社團」區塊。";
 "row.nosuggestedpages.title" = "移除推薦粉絲專頁";
-"row.nosuggestedpages.desc" = "隱藏「你可能喜愛的粉絲專頁」區塊。";
+"row.nosuggestedpages.desc" = "隱藏「為你推薦的粉絲專頁」區塊。";
 "row.feedlike.title" = "確認貼文按讚";
-"row.feedlike.desc" = "按讚前先詢問。";
+"row.feedlike.desc" = "送出按讚前先詢問。";
 
-"row.downloadreels.title" = "下載Reels";
-"row.downloadreels.desc" = "觀看Reels時顯示下載按鈕。";
+"row.downloadreels.title" = "下載 Reels";
+"row.downloadreels.desc" = "觀看 Reels 時顯示下載按鈕。";
 "row.downloadstories.title" = "下載限時動態";
 "row.downloadstories.desc" = "觀看限時動態時顯示下載按鈕。";
-"row.reelslike.title" = "確認Reels按讚";
-"row.anonstories.title" = "匿名瀏覽限時動態";
+"row.reelslike.title" = "確認 Reels 按讚";
+"row.anonstories.title" = "匿名觀看限時動態";
 "row.anonstories.desc" = "瀏覽限時動態時不留已讀紀錄。";
-"row.noautonext.title" = "關閉自動播放下一個";
+"row.noautonext.title" = "停用自動播放下一則";
 "row.nostorypymk.title" = "隱藏限時動態推薦";
 "row.nostorypymk.desc" = "從限時動態列移除「你可能認識的朋友」。";
 "row.oled.title" = "OLED 深色模式";
@@ -59,17 +59,17 @@
 "download.error.unknown" = "未知的錯誤";
 "download.story.saved" = "已儲存至「照片」";
 "download.story.a11y" = "下載限時動態";
-"download.reel.a11y" = "下載Reels";
-"download.reel.progress" = "正在下載Reels…";
+"download.reel.a11y" = "下載 Reels";
+"download.reel.progress" = "正在下載 Reels…";
 "download.reel.saving" = "下載完成，正在儲存…";
-"download.reel.saved" = "Reels已儲存至「照片」";
-"download.reel.failed" = "無法下載Reels。";
-"download.reel.failedDetail" = "無法下載Reels。\n%@";
+"download.reel.saved" = "Reels 已儲存至「照片」";
+"download.reel.failed" = "Reels 下載失敗。";
+"download.reel.failedDetail" = "Reels 下載失敗。\n%@";
 "download.reel.saveFailed" = "無法儲存至「照片」。\n%@";
-"download.reel.inProgress" = "已有Reels正在下載中。";
+"download.reel.inProgress" = "已有 Reels 正在下載中。";
 "download.reel.httpError" = "Facebook CDN 回傳 HTTP %ld。";
 "download.reel.tmpFailed" = "無法建立暫存影片檔案。";
-"download.reel.noLink" = "找不到此影片的連結。";
+"download.reel.noLink" = "無法取得此影片的連結。";
 
 /* Update screen */
 "update.title" = "有可用更新";
