@@ -58,6 +58,7 @@ static NSString *const kCell = @"fbp.language.row";
             @{ kCode:@"hi",      kName:@"हिन्दी",              kEng:@"Hindi" },
             @{ kCode:@"id",      kName:@"Bahasa Indonesia",   kEng:@"Indonesian" },
             @{ kCode:@"it",      kName:@"Italiano",           kEng:@"Italian" },
+            @{ kCode:@"pl",      kName:@"Polski",             kEng:@"Polish" },
             @{ kCode:@"pt-BR",   kName:@"Português (Brasil)", kEng:@"Portuguese (Brazil)" },
             @{ kCode:@"ru",      kName:@"Русский",            kEng:@"Russian" },
             @{ kCode:@"tr",      kName:@"Türkçe",             kEng:@"Turkish" },

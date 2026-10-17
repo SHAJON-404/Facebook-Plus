@@ -1,0 +1,87 @@
+/* Facebook Plus — Polski. Auto-generated from test/gen_strings.py.
+   Keep translations in sync via that script; keys match every other .lproj. */
+
+"settings.subtitle" = "Ustawienia dodatku";
+"row.noads.title" = "Usuń reklamy";
+"row.norecs.title" = "Usuń rekomendacje";
+"row.norecs.desc" = "Ukrywa posty sugerowane algorytmicznie.";
+"row.nopymk.title" = "Usuń osoby, które możesz znać";
+"row.noreels.title" = "Usuń karuzelę rolek";
+"row.nostories.title" = "Usuń relacje";
+"row.nostories.desc" = "Ukrywa pasek relacji oraz pojedyncze karty relacji w aktualnościach.";
+"row.nothreads.title" = "Usuń promocję Threads";
+"row.nothreads.desc" = "Ukrywa kartę „Odkrywaj nowe wątki”.";
+"row.nogroups.title" = "Usuń sugestie grup";
+"row.nogroups.desc" = "Ukrywa sekcje z grupami, do których warto dołączyć.";
+"row.nosuggestedpages.title" = "Usuń sugerowane strony";
+"row.nosuggestedpages.desc" = "Ukrywa sekcje z sugerowanymi stronami.";
+"row.feedlike.title" = "Potwierdzaj polubienia postów";
+"row.feedlike.desc" = "Pyta o potwierdzenie przed wysłaniem polubienia.";
+
+"row.downloadreels.title" = "Pobieraj rolki";
+"row.downloadreels.desc" = "Wyświetla przycisk pobierania podczas oglądania rolek.";
+"row.downloadstories.title" = "Pobieraj relacje";
+"row.downloadstories.desc" = "Wyświetla przycisk pobierania podczas oglądania relacji.";
+
+"row.reelslike.title" = "Potwierdzaj polubienia rolek";
+"row.hideoverlay.title" = "Przycisk ukrywania nakładki";
+"row.hideoverlay.desc" = "Dodaje do rolek przycisk z ikoną oka, który ukrywa wszystkie elementy interfejsu — polubienia, komentarze, udostępnianie i opis — pozostawiając tylko film.";
+"row.anonstories.title" = "Oglądaj relacje anonimowo";
+"row.anonstories.desc" = "Pozwala oglądać relacje bez wysyłania potwierdzenia odczytu.";
+"row.noautonext.title" = "Wyłącz automatyczne przechodzenie dalej";
+"row.nostorypymk.title" = "Ukryj sugestie relacji";
+"row.nostorypymk.desc" = "Usuwa osoby, które możesz znać, z paska relacji.";
+"row.oled.title" = "Tryb ciemny OLED";
+"row.oled.desc" = "Ustawia prawdziwą czerń w całej aplikacji.";
+"row.appicon.title" = "Ikona aplikacji";
+"row.appicon.desc" = "Wybierz alternatywną ikonę aplikacji.";
+"row.autoclear.title" = "Czyść pamięć podręczną przy uruchomieniu";
+"row.clearcache.title" = "Wyczyść pamięć podręczną";
+"row.checkupdate.title" = "Sprawdź dostępność aktualizacji";
+"row.checkupdate.desc" = "Sprawdź, czy jest dostępna nowsza wersja.";
+"row.welcome.title" = "Pokaż ekran powitalny";
+"row.reset.title" = "Zresetuj wszystkie ustawienia";
+"row.linksinsafari.title" = "Otwieraj łącza w Safari";
+"row.linksinsafari.desc" = "Otwiera zewnętrzne łącza w domyślnej przeglądarce zamiast w przeglądarce w aplikacji.";
+"row.language.title" = "Język";
+"footer.by" = "Facebook Plus · autor: ";
+"reset.title" = "Zresetuj wszystkie ustawienia";
+"reset.message" = "Wszystkie opcje powrócą do wartości domyślnych. Tej operacji nie można cofnąć.";
+"reset.confirm" = "Resetuj";
+"toast.settingsReset" = "Ustawienia zostały zresetowane";
+"toast.cacheCleared" = "Pamięć podręczna została wyczyszczona";
+"appicon.default" = "Domyślna";
+"appicon.applied" = "Zastosowano ikonę %@";
+"appicon.error.unsupported" = "Ta aplikacja nie pozwala na zmianę ikony.";
+"appicon.error.failed" = "Nie udało się zmienić ikony.";
+"common.cancel" = "Anuluj";
+"common.ok" = "OK";
+
+/* Pobieranie — komunikaty środowiska wykonawczego */
+"download.appName" = "Facebook Plus";
+"download.error.unknown" = "Nieznany błąd";
+"download.story.saved" = "Zapisano w Zdjęciach";
+"download.story.a11y" = "Pobierz relację";
+"download.reel.a11y" = "Pobierz rolkę";
+"download.reel.progress" = "Pobieranie rolki…";
+"download.reel.saving" = "Pobieranie zakończone, zapisywanie…";
+"download.reel.saved" = "Rolka została zapisana w Zdjęciach";
+"download.reel.failed" = "Nie udało się pobrać rolki.";
+"download.reel.failedDetail" = "Nie udało się pobrać rolki.\n%@";
+"download.reel.saveFailed" = "Nie udało się zapisać w Zdjęciach.\n%@";
+"download.reel.inProgress" = "Inna rolka jest już pobierana.";
+"download.reel.httpError" = "Sieć CDN Facebooka zwróciła kod HTTP %ld.";
+"download.reel.tmpFailed" = "Nie udało się utworzyć tymczasowego pliku wideo.";
+"download.reel.noLink" = "Nie udało się uzyskać łącza do tego filmu.";
+"reels.hideOverlay.a11y" = "Ukryj nakładkę rolki";
+
+/* Ekran aktualizacji */
+"update.title" = "Dostępna aktualizacja";
+"update.subtitle" = "Wersja %@ jest już dostępna.";
+"update.whatsnew" = "Co nowego";
+"update.nochangelog" = "Nie podano listy zmian dla tej wersji.";
+"update.telegram" = "Pobierz z Telegrama";
+"update.github" = "Pobierz z GitHuba";
+"update.later" = "Później";
+"update.uptodate" = "Masz najnowszą wersję.";
+"update.failed" = "Nie udało się sprawdzić dostępności aktualizacji.";
