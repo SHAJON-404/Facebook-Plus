@@ -1,13 +1,11 @@
 {
-  // Logos sources. VS Code has no grammar for .xm, so without this they get no
-  // syntax highlighting at all. Objective-C is the closest fit; the %hook and
-  // %orig directives will still look odd, which is expected — logos.pl rewrites
-  // them before any compiler sees the file.
+  // Logos sources. Using "logos" language mode prevents C/Clang from treating
+  // %hook, %orig, and %group directives as invalid Objective-C syntax errors.
   "files.associations": {
-    "*.xm": "objective-c",
-    "*.xmi": "objective-cpp",
-    "*.x": "objective-c",
-    "*.xi": "objective-c",
+    "*.xm": "logos",
+    "*.xmi": "logos",
+    "*.x": "logos",
+    "*.xi": "logos",
     "*.pch": "objective-c"
   },
   // Generated and build output — noise in the file tree and in search results.
