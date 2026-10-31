@@ -1,6 +1,6 @@
 Package: com.shajon.fbplus
 Name: Facebook Plus
-Version: 1.0.2
+Version: 1.0.3
 Architecture: iphoneos-arm64
 Description: Browse stories privately, confirm before liking, and quieten the feed.
 Maintainer: S. SHAJON
