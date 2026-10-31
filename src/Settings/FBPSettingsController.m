@@ -186,14 +186,7 @@ static const CGFloat kIconGlyph    = 22.0;   // monochrome glyph size within the
     if (!host) return;
 
     FBPSettingsController *settings = [[FBPSettingsController alloc] init];
-    settings.modalPresentationStyle = UIModalPresentationPageSheet;
-
-    if (@available(iOS 15.0, *)) {
-        UISheetPresentationController *sheet = settings.sheetPresentationController;
-        sheet.detents = @[UISheetPresentationControllerDetent.largeDetent];
-        sheet.prefersGrabberVisible = YES;
-        sheet.preferredCornerRadius = 22.0;
-    }
+    settings.modalPresentationStyle = UIModalPresentationFullScreen;
 
     [host presentViewController:settings animated:YES completion:nil];
 }
