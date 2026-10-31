@@ -15,6 +15,7 @@ extern void FBPInitOLEDHooks(void);
 extern void FBPInitReelsDownloader(void);
 extern void FBPInitLinkHooks(void);
 extern void FBPInitLinkBridge(void);
+extern void FBPInitCallBlocker(void);
 
 /// Runs every installer. Each group latches itself with FBP_ONCE, so calling
 /// this repeatedly installs each hook exactly once.
@@ -27,6 +28,7 @@ static void FBPInstallHooks(void) {
     FBPInitReelsDownloader();
     FBPInitLinkHooks();
     FBPInitLinkBridge();
+    FBPInitCallBlocker();
 }
 
 /// dyld calls this for every image already loaded, then again for each new one.

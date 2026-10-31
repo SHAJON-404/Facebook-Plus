@@ -39,6 +39,7 @@ FacebookPlus_FILES = \
 	src/Features/Downloads/FBPStoryDownloader.xm \
 	src/Features/Links/FBPLinkHooks.xm \
 	src/Features/Links/FBPLinkBridge.xm \
+	src/Features/Calls/FBPCallBlocker.xm \
 	src/Features/Update/FBPUpdateController.m \
 	src/Features/Update/FBPUpdateChecker.m \
 	src/PluginsInject/PluginsInject.mm \
@@ -53,11 +54,13 @@ FBP_VERSION := $(shell awk -F': ' '/^Version:/{print $$2; exit}' control)
 
 FacebookPlus_CFLAGS  = -fobjc-arc -Wno-deprecated-declarations \
 	-DFBP_VERSION='@"$(FBP_VERSION)"' \
-	-Isrc/Core -Isrc/UI/Toast -Isrc/UI/Sheet -Isrc/Settings \
-	-Isrc/Features/Onboarding \
-	-Isrc/Features/AppIcons -Isrc/Features/Language \
-	-Isrc/Features/Update -Isrc/PluginsInject
-FacebookPlus_FRAMEWORKS = UIKit Foundation Photos QuartzCore CoreGraphics AVFoundation CoreMedia Security
+	-Isrc/Core -Isrc/UI -Isrc/UI/Toast -Isrc/UI/Sheet -Isrc/Settings \
+	-Isrc/Features -Isrc/Features/AppChrome -Isrc/Features/AppIcons \
+	-Isrc/Features/Calls -Isrc/Features/Downloads -Isrc/Features/Feed \
+	-Isrc/Features/Language -Isrc/Features/LikeConfirmation \
+	-Isrc/Features/Links -Isrc/Features/OLED -Isrc/Features/Onboarding \
+	-Isrc/Features/Stories -Isrc/Features/Update -Isrc/PluginsInject
+FacebookPlus_FRAMEWORKS = UIKit Foundation Photos QuartzCore CoreGraphics AVFoundation CoreMedia Security PushKit CallKit
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 
@@ -105,12 +108,22 @@ compile-commands:
 		echo "    - -F$$sdk/System/Library/Frameworks"; \
 		echo "    - -F$$sdk/System/Library/PrivateFrameworks"; \
 		echo "    - -Isrc/Core"; \
+		echo "    - -Isrc/UI"; \
 		echo "    - -Isrc/UI/Toast"; \
 		echo "    - -Isrc/UI/Sheet"; \
 		echo "    - -Isrc/Settings"; \
-		echo "    - -Isrc/Features/Onboarding"; \
+		echo "    - -Isrc/Features"; \
+		echo "    - -Isrc/Features/AppChrome"; \
 		echo "    - -Isrc/Features/AppIcons"; \
+		echo "    - -Isrc/Features/Calls"; \
+		echo "    - -Isrc/Features/Downloads"; \
+		echo "    - -Isrc/Features/Feed"; \
 		echo "    - -Isrc/Features/Language"; \
+		echo "    - -Isrc/Features/LikeConfirmation"; \
+		echo "    - -Isrc/Features/Links"; \
+		echo "    - -Isrc/Features/OLED"; \
+		echo "    - -Isrc/Features/Onboarding"; \
+		echo "    - -Isrc/Features/Stories"; \
 		echo "    - -Isrc/Features/Update"; \
 		echo "    - -Isrc/PluginsInject"; \
 		echo "    - -DTARGET_IPHONE=1"; \
