@@ -4,13 +4,13 @@
 
   <p>
     <strong>The ultimate privacy and enhancement tweak for the Facebook iOS app.</strong><br>
-    <em>Quieten your feed, watch stories anonymously, download Reels & Stories, confirm interactions, and customize the app's appearance.</em>
+    <em>Quieten your feed, watch stories anonymously, download Reels & Stories, block incoming calls, confirm interactions, and customize the app's appearance.</em>
   </p>
 
   <p>
     <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/License-GPLv3-blue.svg?style=flat-square"></a>
     <img alt="Platform" src="https://img.shields.io/badge/Platform-iOS%2017.0%2B-lightgrey.svg?style=flat-square">
-    <img alt="Version" src="https://img.shields.io/badge/Version-1.0.1-success.svg?style=flat-square">
+    <img alt="Version" src="https://img.shields.io/badge/Version-1.0.3-success.svg?style=flat-square">
   </p>
 </div>
 
@@ -32,19 +32,23 @@
     </tr>
     <tr>
       <td nowrap>🎬 <b>Reels</b></td>
-      <td><b>Confirm before liking</b><br><b>Hide overlay</b> — one tap strips likes, comments, share & caption, leaving just the video<br>Save <b>Reels</b> to Photos</td>
+      <td><b>Confirm before liking</b><br><b>Hide overlay</b> — one tap strips likes, comments, share & caption, leaving just the clean video<br>Save <b>Reels</b> to Photos</td>
     </tr>
     <tr>
       <td nowrap>📖 <b>Stories</b></td>
-      <td>Watch stories anonymously (Ghost Mode)<br>Disable auto-advance<br>Hide Story Suggestions<br> Save <b>Stories</b> (video & photo) to Photos</td>
+      <td>Watch stories anonymously (Ghost Mode)<br>Disable auto-advance<br>Hide Story Suggestions<br>Save <b>Stories</b> (video & photo) to Photos</td>
+    </tr>
+    <tr>
+      <td nowrap>📞 <b>Calls & Privacy</b></td>
+      <td><b>Incoming Call Blocker</b> — silently block incoming VoIP / Messenger calls inside Facebook without disturbing your app experience</td>
     </tr>
     <tr>
       <td nowrap>🧭 <b>Links</b></td>
-      <td>Open external links in your <b>default browser</b> instead of the in-app browser<br><b>Open in Facebook</b> Safari extension — reopens facebook.com links from Safari in the app, on the <b>exact Reel / post / photo / story</b></td>
+      <td>Open external links in your <b>default browser</b> instead of the in-app browser<br><b>Open in Facebook</b> Safari extension — reopens facebook.com links from Safari in the app, routing directly to the <b>exact Reel / post / photo / story destination</b> (including FaceWeb deep links)</td>
     </tr>
     <tr>
       <td nowrap>🎨 <b>Appearance</b></td>
-      <td><b>OLED Dark Mode</b> (true black — keeps post dividers, avatars & the status bar legible)<br>Custom App-Icon Picker</td>
+      <td><b>OLED Dark Mode</b> (true black — preserves post dividers, rounded avatars & status bar legibility)<br>Custom App-Icon Picker with multiple alternate icons</td>
     </tr>
     <tr>
       <td nowrap>🔔 <b>Updates</b></td>
@@ -53,7 +57,7 @@
   </tbody>
 </table>
 
-💡 **Settings:** Long-press any **tab bar item** (classic or the new iOS 26 liquid-glass bar), the **"facebook" wordmark**, or the **native Facebook settings button**.
+💡 **Dedicated Settings Page:** Access the dedicated full-screen tweak settings anytime by long-pressing any **tab bar item** (classic or modern liquid-glass bar), long-pressing the **"facebook" wordmark**, or via the **native Facebook settings entry**.
 
 ---
 
@@ -65,9 +69,15 @@ Contributions and suggestions are welcome — open an issue or a pull request.
 
 ---
 
+## 🔒 Security & Disclaimer
+
+Please read **[SECURITY.md](SECURITY.md)** for our security policy, account safety guidelines, and disclaimer of warranty/liability. Use Facebook Plus at your own risk.
+
+---
+
 ## 🚀 Installation
 
-Download the pre-built `.ipa` file from the **[Releases](../../releases)** section and install it on your device using **Feather**, **Ksing**, or any other sideloading tool of your choice.
+Download the pre-built `.ipa` file from the **[Releases](../../releases)** section and install it on your device using **Feather**, **Ksing**, **AltStore**, **TrollStore**, or any other sideloading tool of your choice.
 
 ## ⚡ Build your own IPA with GitHub Actions
 
@@ -144,8 +154,8 @@ This project requires [Theos](https://theos.dev) to build. Ensure you have it in
      - builds every Safari web extension under `OpenInFacebookSafariExtension/`
        from source and injects the resulting `.appex` into the app's `PlugIns/`;
      - merges any custom app icons (`fbplus_*.png` in `resources/logo/`) into
-       `CFBundleAlternateIcons` via `scripts/icon_plist.py`, preserving
-       Facebook's native icons;
+     `CFBundleAlternateIcons` via `scripts/icon_plist.py`, preserving
+     Facebook's native icons;
      - fakesigns every injected binary for sideloading.
 
 
@@ -167,7 +177,7 @@ This writes a per-machine `.clangd` (with your theos path and SDK baked in) and 
 ## 🏗️ Project Architecture
 
 ```text
-├── Localizations       # Translations (ar, bn, de, es, fr, hi, id, it, ja, ko, etc.)
+├── Localizations       # Translations (ar, bn, de, es, fr, hi, id, it, ja, ko, zh-Hant, etc.)
 ├── OpenInFacebookSafariExtension  # Safari web extension built into PlugIns ("Open in Facebook")
 ├── resources           # Assets (App icons, SVGs, and asset bundles)
 │   ├── bundle          # Compiled UI images and tweak resources
@@ -176,22 +186,23 @@ This writes a per-machine `.clangd` (with your theos path and SDK baked in) and 
 ├── scripts             # Python utility scripts (e.g., icon merging, svg rendering)
 ├── src                 # Tweak source code
 │   ├── Core            # Constructor, preferences, and resources
-│   ├── Features        # All the hooks for modifying the Facebook app:
-│   │   ├── AppChrome   # UI settings gesture (TabBar & Settings Button)
+│   ├── Features        # All hooks & feature implementations:
+│   │   ├── AppChrome   # UI settings gesture (TabBar, Wordmark long-press & Settings Button)
 │   │   ├── AppIcons    # Custom app-icon picker logic
+│   │   ├── Calls       # Incoming Call Blocker (PushKit & CallKit interceptors)
 │   │   ├── Downloads   # Reel & Story media downloaders (save to Photos)
-│   │   ├── Feed        # Feed-related hooks (ads, suggestions, Reels)
+│   │   ├── Feed        # Feed-related hooks (ads, suggestions, Reels, Stories removal)
 │   │   ├── Language    # UI language override hooks
 │   │   ├── LikeConfirmation # Confirm before liking logic
-│   │   ├── Links       # Open external links in the default browser (not the IAB)
-│   │   ├── OLED        # True dark mode implementation
+│   │   ├── Links       # Open external links in default browser & inbound link bridge
+│   │   ├── OLED        # True black dark mode implementation
 │   │   ├── Onboarding  # Welcome screen controller
 │   │   ├── Stories     # Story-related hooks (Ghost mode, auto-advance block)
 │   │   └── Update      # In-app update checker + update screen (GitHub Releases)
 │   ├── PluginsInject   # Sideload compatibility layer (Keychain / App-Group / CloudKit)
-│   ├── Settings        # The Facebook Plus in-app settings UI
+│   ├── Settings        # Dedicated full-screen Facebook Plus settings UI
 │   └── UI              # Shared UI components
-│       ├── Sheet       # Bottom sheet controllers
+│       ├── Sheet       # Detent & Presentation controllers
 │       └── Toast       # HUD / Progress pills
 └── test                # Input IPA directory and test scripts
 ```
