@@ -13,6 +13,7 @@ request.
 - [ ] **Multiple-quality** download picker for Reels & videos (choose resolution before saving)
 
 **Navigation**
+- [ ] Option to hide the **Reels / Video tab** from the bottom tab bar
 - [ ] Remove the **"Also from Meta"** section from the left sidebar
 
 > [!NOTE]

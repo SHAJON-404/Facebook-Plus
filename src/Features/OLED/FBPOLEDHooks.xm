@@ -365,25 +365,41 @@ static void FBPBlackenHeaderTree(UIView *view, int depth) {
 
 #pragma mark - Forced dark appearance
 
-/// Forces every app window to the dark interface style while OLED is on (and
-/// releases the override when off), so the toggle alone turns the app dark.
+/// Forces every app window to the dark interface style while OLED is on.
+/// When OLED is off, we only reset windows that we previously forced dark,
+/// so we never override or destroy Facebook's own native dark mode.
 /// Applied only on discrete events (never during layout) to avoid flicker.
 static void FBPApplyForcedAppearance(void) {
     if (@available(iOS 13.0, *)) {
-        UIUserInterfaceStyle want = gOLEDEnabled ? UIUserInterfaceStyleDark
-                                                 : UIUserInterfaceStyleUnspecified;
-        for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
-            if (![scene isKindOfClass:UIWindowScene.class]) continue;
-            for (UIWindow *window in ((UIWindowScene *)scene).windows) {
-                if ([NSStringFromClass(window.class) hasPrefix:@"FBP"]) continue;
-                if (window.overrideUserInterfaceStyle != want) {
-                    window.overrideUserInterfaceStyle = want;
-                }
+        static BOOL didForceDark = NO;
+        if (gOLEDEnabled) {
+            didForceDark = YES;
+            for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+                if (![scene isKindOfClass:UIWindowScene.class]) continue;
+                for (UIWindow *window in ((UIWindowScene *)scene).windows) {
+                    if ([NSStringFromClass(window.class) hasPrefix:@"FBP"]) continue;
+                    if (window.overrideUserInterfaceStyle != UIUserInterfaceStyleDark) {
+                        window.overrideUserInterfaceStyle = UIUserInterfaceStyleDark;
+                    }
 
-                // Re-query the status bar style so toggling OLED flips the
-                // time / battery / signal glyphs to light (or back) immediately.
-                UIViewController *root = window.rootViewController;
-                if (root) [root setNeedsStatusBarAppearanceUpdate];
+                    UIViewController *root = window.rootViewController;
+                    if (root) [root setNeedsStatusBarAppearanceUpdate];
+                }
+            }
+        } else if (didForceDark) {
+            // Only release the override if OLED was previously active in this session
+            didForceDark = NO;
+            for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+                if (![scene isKindOfClass:UIWindowScene.class]) continue;
+                for (UIWindow *window in ((UIWindowScene *)scene).windows) {
+                    if ([NSStringFromClass(window.class) hasPrefix:@"FBP"]) continue;
+                    if (window.overrideUserInterfaceStyle == UIUserInterfaceStyleDark) {
+                        window.overrideUserInterfaceStyle = UIUserInterfaceStyleUnspecified;
+                    }
+
+                    UIViewController *root = window.rootViewController;
+                    if (root) [root setNeedsStatusBarAppearanceUpdate];
+                }
             }
         }
     }
