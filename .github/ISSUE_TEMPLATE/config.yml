@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
-  - name: 💬 Telegram
-    url: https://t.me/SHAJON
-    about: General questions, setup help, and quick discussion.
-  - name: 📖 README & build instructions
+  - name: Telegram Community
+    url: https://t.me/ReFacebookPlus
+    about: Ask questions, get help, or join community discussions.
+  - name: Documentation & Builds
     url: https://github.com/SHAJON-404/Facebook-Plus#readme
-    about: Installation, building from source, and sideloading are documented here.
+    about: Installation instructions, building from source, and sideloading guide.

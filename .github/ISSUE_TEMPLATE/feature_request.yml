@@ -1,65 +1,19 @@
-name: 💡 Feature request
-description: Suggest a new feature or an improvement to an existing one.
+name: Feature Request
+description: Suggest an idea or new feature for Facebook Plus
 title: "[Feature]: "
 labels: ["enhancement"]
 body:
-  - type: markdown
+  - type: textarea
+    id: feature_description
     attributes:
-      value: |
-        Have an idea? Describe the problem you want solved — that is usually more useful than a specific implementation.
-
-  - type: checkboxes
-    id: preflight
-    attributes:
-      label: Preflight checklist
-      options:
-        - label: I searched the [existing issues](../issues?q=is%3Aissue) and did not find a duplicate request.
-          required: true
-
-  - type: dropdown
-    id: area
-    attributes:
-      label: Area
-      description: Which part of the tweak does this relate to?
-      options:
-        - Feed
-        - Reels
-        - Stories
-        - Like confirmation
-        - Appearance (OLED / app icons)
-        - Language / localization
-        - Meta Facebook Plus
-        - Settings UI
-        - New feature area
-        - Other
+      label: Feature Description
+      description: Explain the feature you would like to see and how it should work.
+      placeholder: Describe your idea or feature request clearly...
     validations:
       required: true
 
   - type: textarea
-    id: problem
+    id: additional_info
     attributes:
-      label: Problem / motivation
-      description: What are you trying to achieve, and what makes it hard today?
-      placeholder: When I scroll the feed, …
-    validations:
-      required: true
-
-  - type: textarea
-    id: proposal
-    attributes:
-      label: Proposed solution
-      description: What would you like the tweak to do?
-    validations:
-      required: true
-
-  - type: textarea
-    id: alternatives
-    attributes:
-      label: Alternatives considered
-      description: Other approaches you thought about, or how you work around this now.
-
-  - type: textarea
-    id: context
-    attributes:
-      label: Additional context
-      description: Mockups, references to how other apps do it, or anything else.
+      label: Additional Context (Optional)
+      description: Add any screenshots, references, or mockups if applicable.
