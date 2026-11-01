@@ -1,5 +1,27 @@
-"settings.subtitle" = "Tweak Preferences";
+"nav.settings" = "Tweak Preference";
+
+"cat.ads.title" = "Ads & Feed";
+"cat.ads.summary" = "Remove ads, recommendations and clutter";
+"cat.confirm.title" = "Confirmations";
+"cat.confirm.summary" = "Ask before accidental actions";
+"cat.stories.title" = "Stories";
+"cat.stories.summary" = "Watch privately, no auto-advance";
+"cat.downloads.title" = "Downloads";
+"cat.downloads.summary" = "Save Reels and Stories";
+"cat.appearance.title" = "Appearance";
+"cat.appearance.summary" = "OLED dark mode and app icon";
+"cat.general.title" = "General";
+"cat.general.summary" = "Links, language, cache and more";
+
+"info.fbVersion" = "Facebook Version";
+"info.fbPlusVersion" = "Facebook Plus Version";
+"info.developer" = "Developer Name";
+"info.github" = "GitHub";
+"info.telegram" = "Telegram Channel";
+"footer.feedClutter" = "Hides the “you may know / should join / for you” units.";
+"footer.confirm" = "A prompt appears before the action goes through. Cancel stops it.";
 "row.noads.title" = "Remove Ads";
+"row.noads.desc" = "Removes ads from the feed, video and stories.";
 "row.norecs.title" = "Remove Recommendations";
 "row.norecs.desc" = "Hides algorithmically suggested posts.";
 "row.nopymk.title" = "Remove People You May Know";
@@ -9,18 +31,13 @@
 "row.nothreads.title" = "Remove Threads Promo";
 "row.nothreads.desc" = "Hides the “discover new threads” card.";
 "row.nogroups.title" = "Remove Group Suggestions";
-"row.nogroups.desc" = "Hides the “groups you should join” units.";
 "row.nosuggestedpages.title" = "Remove Suggested Pages";
-"row.nosuggestedpages.desc" = "Hides the “suggested pages for you” units.";
-"row.feedlike.title" = "Confirm Post Likes";
-"row.feedlike.desc" = "Asks before a like is sent.";
+"row.feedlike.title" = "Confirm Like";
+"row.feedlike.desc" = "Asks before any like is sent — feed posts and Reels.";
 "row.downloadreels.title" = "Download Reels";
 "row.downloadreels.desc" = "Show the download button while viewing Reels.";
 "row.downloadstories.title" = "Download Stories";
 "row.downloadstories.desc" = "Show the download button while viewing Stories.";
-"row.reelslike.title" = "Confirm Reels Likes";
-"row.hideoverlay.title" = "Hide Overlay Toggle";
-"row.hideoverlay.desc" = "Add an eye button to Reels that hides all the on-screen chrome — likes, comments, share, caption — leaving just the video.";
 "row.anonstories.title" = "Watch Stories Anonymously";
 "row.anonstories.desc" = "View stories without sending a read receipt.";
 "row.noautonext.title" = "Disable Auto-Advance";
@@ -39,7 +56,6 @@
 "row.linksinsafari.title" = "Open Links in Safari";
 "row.linksinsafari.desc" = "Opens external links in your default browser instead of the in-app browser.";
 "row.language.title" = "Language";
-"footer.by" = "Facebook Plus · by ";
 "reset.title" = "Reset All Settings";
 "reset.message" = "Every option returns to its default. This cannot be undone.";
 "reset.confirm" = "Reset";
@@ -51,6 +67,7 @@
 "appicon.error.failed" = "The icon could not be changed.";
 "common.cancel" = "Cancel";
 "common.ok" = "OK";
+"common.confirm" = "Confirm";
 "download.appName" = "Facebook Plus";
 "download.error.unknown" = "Unknown error";
 "download.story.saved" = "Saved to Photos";
@@ -76,3 +93,31 @@
 "update.later" = "Later";
 "update.uptodate" = "You're on the latest version.";
 "update.failed" = "Couldn't check for updates.";
+
+"row.confirmcomment.title" = "Confirm Comments";
+"row.confirmcomment.desc" = "Asks before a comment is posted.";
+"row.confirmshare.title" = "Confirm Sharing";
+"row.confirmshare.desc" = "Asks before anything is shared.";
+"row.confirmpost.title" = "Confirm Posting";
+"row.confirmpost.desc" = "Asks before a post is published.";
+"row.confirmfriend.title" = "Confirm Friend Actions";
+"row.confirmfriend.desc" = "Asks before adding or cancelling a friend request.";
+"row.confirmfollow.title" = "Confirm Follow / Join";
+"row.confirmfollow.desc" = "Asks before following a page or joining a group.";
+
+"confirm.friend.title" = "Confirm friend request";
+"confirm.friend.message" = "Apply this friend-request change?";
+"confirm.follow.message" = "Apply this follow / join change?";
+"confirm.follow.verb" = "Continue";
+"confirm.like.title" = "Confirm Like";
+"confirm.like.message" = "Send this reaction?";
+"confirm.like.verb" = "Like";
+"confirm.share.title" = "Confirm share";
+"confirm.share.message" = "Share this now?";
+"confirm.share.verb" = "Share";
+"confirm.post.title" = "Confirm post";
+"confirm.post.message" = "Publish this now?";
+"confirm.post.verb" = "Publish";
+"confirm.comment.title" = "Post comment?";
+"confirm.comment.message" = "Publish this comment now?";
+"confirm.comment.verb" = "Post";

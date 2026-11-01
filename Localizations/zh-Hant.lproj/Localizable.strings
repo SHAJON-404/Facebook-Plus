@@ -1,5 +1,27 @@
-"settings.subtitle" = "插件偏好設定";
+"nav.settings" = "插件偏好設定";
+
+"cat.ads.title" = "廣告與動態";
+"cat.ads.summary" = "移除廣告、推薦與雜亂內容";
+"cat.confirm.title" = "操作確認";
+"cat.confirm.summary" = "誤觸之前先確認";
+"cat.stories.title" = "限時動態";
+"cat.stories.summary" = "匿名觀看，不自動播放";
+"cat.downloads.title" = "下載";
+"cat.downloads.summary" = "儲存 Reels 與限時動態";
+"cat.appearance.title" = "外觀";
+"cat.appearance.summary" = "OLED 深色模式與 App 圖示";
+"cat.general.title" = "一般";
+"cat.general.summary" = "連結、語言、快取等";
+
+"info.fbVersion" = "Facebook 版本";
+"info.fbPlusVersion" = "Facebook Plus 版本";
+"info.developer" = "開發者";
+"info.github" = "GitHub";
+"info.telegram" = "Telegram 頻道";
+"footer.feedClutter" = "隱藏「你可能認識 / 建議加入 / 為你推薦」這類區塊。";
+"footer.confirm" = "操作送出前會先跳出確認，點「取消」即可中止。";
 "row.noads.title" = "移除廣告";
+"row.noads.desc" = "移除動態消息、影片與限時動態中的廣告。";
 "row.norecs.title" = "移除推薦貼文";
 "row.norecs.desc" = "隱藏演算法推薦的貼文。";
 "row.nopymk.title" = "移除「你可能認識的朋友」";
@@ -9,18 +31,13 @@
 "row.nothreads.title" = "移除 Threads 推廣";
 "row.nothreads.desc" = "隱藏「探索新串文」推薦卡片。";
 "row.nogroups.title" = "移除推薦社團";
-"row.nogroups.desc" = "隱藏「為你推薦的社團」區塊。";
 "row.nosuggestedpages.title" = "移除推薦粉絲專頁";
-"row.nosuggestedpages.desc" = "隱藏「為你推薦的粉絲專頁」區塊。";
-"row.feedlike.title" = "貼文按讚確認";
-"row.feedlike.desc" = "送出讚之前先詢問。";
+"row.feedlike.title" = "確認按讚";
+"row.feedlike.desc" = "送出任何讚之前先詢問——動態貼文與 Reels 皆適用。";
 "row.downloadreels.title" = "下載 Reels";
 "row.downloadreels.desc" = "觀看 Reels 時顯示下載按鈕。";
 "row.downloadstories.title" = "下載限時動態";
 "row.downloadstories.desc" = "觀看限時動態時顯示下載按鈕。";
-"row.reelslike.title" = "Reels 按讚確認";
-"row.hideoverlay.title" = "隱藏畫面資訊按鈕";
-"row.hideoverlay.desc" = "在 Reels 加入眼睛按鈕，點一下即可隱藏所有介面元素（按讚、留言、分享與說明文字），只保留影片畫面。";
 "row.anonstories.title" = "匿名觀看限時動態";
 "row.anonstories.desc" = "觀看限時動態時不傳送已讀回條。";
 "row.noautonext.title" = "停用自動播放下一則";
@@ -39,7 +56,6 @@
 "row.linksinsafari.title" = "在 Safari 中開啟連結";
 "row.linksinsafari.desc" = "使用系統預設瀏覽器開啟外部連結，而非 App 內建瀏覽器。";
 "row.language.title" = "語言";
-"footer.by" = "Facebook Plus · 開發者：";
 "reset.title" = "重設所有設定";
 "reset.message" = "所有選項皆會恢復為預設值，此操作無法復原。";
 "reset.confirm" = "重設";
@@ -51,6 +67,7 @@
 "appicon.error.failed" = "無法更換圖示。";
 "common.cancel" = "取消";
 "common.ok" = "好";
+"common.confirm" = "確認";
 "download.appName" = "Facebook Plus";
 "download.error.unknown" = "未知的錯誤";
 "download.story.saved" = "已儲存至「照片」";
@@ -76,3 +93,31 @@
 "update.later" = "稍後";
 "update.uptodate" = "目前已是最新版本。";
 "update.failed" = "無法檢查更新。";
+
+"row.confirmcomment.title" = "確認發表留言";
+"row.confirmcomment.desc" = "發表留言前先詢問。";
+"row.confirmshare.title" = "確認分享";
+"row.confirmshare.desc" = "分享任何內容前先詢問。";
+"row.confirmpost.title" = "確認發佈貼文";
+"row.confirmpost.desc" = "發佈貼文前先詢問。";
+"row.confirmfriend.title" = "確認好友操作";
+"row.confirmfriend.desc" = "傳送或取消交友邀請前先詢問。";
+"row.confirmfollow.title" = "確認追蹤 / 加入";
+"row.confirmfollow.desc" = "追蹤粉絲專頁或加入社團前先詢問。";
+
+"confirm.friend.title" = "確認交友邀請";
+"confirm.friend.message" = "要執行這項交友邀請操作嗎？";
+"confirm.follow.message" = "要執行這項追蹤 / 加入操作嗎？";
+"confirm.follow.verb" = "繼續";
+"confirm.like.title" = "確認按讚";
+"confirm.like.message" = "要送出這個心情嗎？";
+"confirm.like.verb" = "讚";
+"confirm.share.title" = "確認分享";
+"confirm.share.message" = "要現在分享嗎？";
+"confirm.share.verb" = "分享";
+"confirm.post.title" = "確認發佈貼文";
+"confirm.post.message" = "要現在發佈嗎？";
+"confirm.post.verb" = "發佈";
+"confirm.comment.title" = "發表留言？";
+"confirm.comment.message" = "要現在發佈這則留言嗎？";
+"confirm.comment.verb" = "發表";

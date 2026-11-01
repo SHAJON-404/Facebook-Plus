@@ -1,8 +1,27 @@
-/* Facebook Plus — Polski. Auto-generated from test/gen_strings.py.
-   Keep translations in sync via that script; keys match every other .lproj. */
+"nav.settings" = "Ustawienia dodatku";
 
-"settings.subtitle" = "Ustawienia dodatku";
+"cat.ads.title" = "Reklamy i aktualności";
+"cat.ads.summary" = "Usuń reklamy, rekomendacje i bałagan";
+"cat.confirm.title" = "Potwierdzenia";
+"cat.confirm.summary" = "Pytaj przed przypadkowymi akcjami";
+"cat.stories.title" = "Relacje";
+"cat.stories.summary" = "Oglądaj prywatnie, bez automatycznego przejścia";
+"cat.downloads.title" = "Pobieranie";
+"cat.downloads.summary" = "Zapisuj rolki i relacje";
+"cat.appearance.title" = "Wygląd";
+"cat.appearance.summary" = "Tryb ciemny OLED i ikona aplikacji";
+"cat.general.title" = "Ogólne";
+"cat.general.summary" = "Łącza, język, pamięć podręczna i więcej";
+
+"info.fbVersion" = "Wersja Facebooka";
+"info.fbPlusVersion" = "Wersja Facebook Plus";
+"info.developer" = "Deweloper";
+"info.github" = "GitHub";
+"info.telegram" = "Kanał Telegram";
+"footer.feedClutter" = "Ukrywa sekcje „osoby, które możesz znać / grupy do dołączenia / dla Ciebie”.";
+"footer.confirm" = "Przed wykonaniem akcji pojawia się pytanie. Anuluj ją zatrzymuje.";
 "row.noads.title" = "Usuń reklamy";
+"row.noads.desc" = "Usuwa reklamy z aktualności, filmów i relacji.";
 "row.norecs.title" = "Usuń rekomendacje";
 "row.norecs.desc" = "Ukrywa posty sugerowane algorytmicznie.";
 "row.nopymk.title" = "Usuń osoby, które możesz znać";
@@ -12,20 +31,13 @@
 "row.nothreads.title" = "Usuń promocję Threads";
 "row.nothreads.desc" = "Ukrywa kartę „Odkrywaj nowe wątki”.";
 "row.nogroups.title" = "Usuń sugestie grup";
-"row.nogroups.desc" = "Ukrywa sekcje z grupami, do których warto dołączyć.";
 "row.nosuggestedpages.title" = "Usuń sugerowane strony";
-"row.nosuggestedpages.desc" = "Ukrywa sekcje z sugerowanymi stronami.";
-"row.feedlike.title" = "Potwierdzaj polubienia postów";
-"row.feedlike.desc" = "Pyta o potwierdzenie przed wysłaniem polubienia.";
-
+"row.feedlike.title" = "Potwierdzaj polubienia";
+"row.feedlike.desc" = "Pyta przed wysłaniem polubienia — posty w aktualnościach i rolki.";
 "row.downloadreels.title" = "Pobieraj rolki";
 "row.downloadreels.desc" = "Wyświetla przycisk pobierania podczas oglądania rolek.";
 "row.downloadstories.title" = "Pobieraj relacje";
 "row.downloadstories.desc" = "Wyświetla przycisk pobierania podczas oglądania relacji.";
-
-"row.reelslike.title" = "Potwierdzaj polubienia rolek";
-"row.hideoverlay.title" = "Przycisk ukrywania nakładki";
-"row.hideoverlay.desc" = "Dodaje do rolek przycisk z ikoną oka, który ukrywa wszystkie elementy interfejsu — polubienia, komentarze, udostępnianie i opis — pozostawiając tylko film.";
 "row.anonstories.title" = "Oglądaj relacje anonimowo";
 "row.anonstories.desc" = "Pozwala oglądać relacje bez wysyłania potwierdzenia odczytu.";
 "row.noautonext.title" = "Wyłącz automatyczne przechodzenie dalej";
@@ -44,7 +56,6 @@
 "row.linksinsafari.title" = "Otwieraj łącza w Safari";
 "row.linksinsafari.desc" = "Otwiera zewnętrzne łącza w domyślnej przeglądarce zamiast w przeglądarce w aplikacji.";
 "row.language.title" = "Język";
-"footer.by" = "Facebook Plus · autor: ";
 "reset.title" = "Zresetuj wszystkie ustawienia";
 "reset.message" = "Wszystkie opcje powrócą do wartości domyślnych. Tej operacji nie można cofnąć.";
 "reset.confirm" = "Resetuj";
@@ -56,8 +67,7 @@
 "appicon.error.failed" = "Nie udało się zmienić ikony.";
 "common.cancel" = "Anuluj";
 "common.ok" = "OK";
-
-/* Pobieranie — komunikaty środowiska wykonawczego */
+"common.confirm" = "Potwierdź";
 "download.appName" = "Facebook Plus";
 "download.error.unknown" = "Nieznany błąd";
 "download.story.saved" = "Zapisano w Zdjęciach";
@@ -74,8 +84,6 @@
 "download.reel.tmpFailed" = "Nie udało się utworzyć tymczasowego pliku wideo.";
 "download.reel.noLink" = "Nie udało się uzyskać łącza do tego filmu.";
 "reels.hideOverlay.a11y" = "Ukryj nakładkę rolki";
-
-/* Ekran aktualizacji */
 "update.title" = "Dostępna aktualizacja";
 "update.subtitle" = "Wersja %@ jest już dostępna.";
 "update.whatsnew" = "Co nowego";
@@ -85,3 +93,31 @@
 "update.later" = "Później";
 "update.uptodate" = "Masz najnowszą wersję.";
 "update.failed" = "Nie udało się sprawdzić dostępności aktualizacji.";
+
+"row.confirmcomment.title" = "Potwierdzaj komentarze";
+"row.confirmcomment.desc" = "Pyta przed opublikowaniem komentarza.";
+"row.confirmshare.title" = "Potwierdzaj udostępnianie";
+"row.confirmshare.desc" = "Pyta przed udostępnieniem czegokolwiek.";
+"row.confirmpost.title" = "Potwierdzaj publikowanie";
+"row.confirmpost.desc" = "Pyta przed opublikowaniem posta.";
+"row.confirmfriend.title" = "Potwierdzaj akcje znajomych";
+"row.confirmfriend.desc" = "Pyta przed wysłaniem lub anulowaniem zaproszenia do znajomych.";
+"row.confirmfollow.title" = "Potwierdzaj obserwowanie / dołączanie";
+"row.confirmfollow.desc" = "Pyta przed obserwowaniem strony lub dołączeniem do grupy.";
+
+"confirm.friend.title" = "Potwierdź zaproszenie do znajomych";
+"confirm.friend.message" = "Wykonać tę akcję zaproszenia do znajomych?";
+"confirm.follow.message" = "Wykonać tę akcję obserwowania / dołączenia?";
+"confirm.follow.verb" = "Kontynuuj";
+"confirm.like.title" = "Potwierdź polubienie";
+"confirm.like.message" = "Wysłać tę reakcję?";
+"confirm.like.verb" = "Lubię to";
+"confirm.share.title" = "Potwierdź udostępnienie";
+"confirm.share.message" = "Udostępnić teraz?";
+"confirm.share.verb" = "Udostępnij";
+"confirm.post.title" = "Potwierdź publikację";
+"confirm.post.message" = "Opublikować teraz?";
+"confirm.post.verb" = "Opublikuj";
+"confirm.comment.title" = "Opublikować komentarz?";
+"confirm.comment.message" = "Opublikować ten komentarz teraz?";
+"confirm.comment.verb" = "Opublikuj";
