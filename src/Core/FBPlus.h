@@ -109,6 +109,17 @@ void FBPSetConfirmPromptVisible(BOOL visible);
 }
 #endif
 
+#pragma mark - Ads
+
+/// Ad detection for News Feed unit models. Defined in FBPAdsHooks.xm (so every
+/// ad rule lives in one place) and called by the single FBMemModelObject filter
+/// in FBPFeedHooks, which keeps that model hooked exactly once.
+#ifdef __cplusplus
+extern "C" BOOL FBPModelIsBlockedAd(id model);
+#else
+extern BOOL FBPModelIsBlockedAd(id model);
+#endif
+
 #pragma mark - Accessibility identifiers used to locate Facebook views
 //
 // These are stable across app versions because Facebook's own UI tests depend

@@ -19,8 +19,9 @@ static NSDictionary<NSString *, NSString *> *FBPCategoryMap(void) {
     static NSDictionary *map;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
+        // Ads are handled separately by FBPModelIsBlockedAd (FBPAdsHooks.xm), so
+        // "SPONSORED" is deliberately not mapped here.
         map = @{
-            @"SPONSORED"     : FBPKeyNoAds,
             @"ENGAGEMENT"    : FBPKeyNoRecs,
             @"ENGAGEMENT_QP" : FBPKeyNoRecs,
             @"FB_SHORTS"     : FBPKeyNoReels,
@@ -117,6 +118,12 @@ static BOOL FBPIsThreadsUnit(id model) {
 static BOOL FBPShouldFilterModel(id model) {
     if (!model) return NO;
 
+    // Ads (sponsored units and sponsoredData-backed units) are detected in one
+    // place — FBPModelIsBlockedAd in FBPAdsHooks.xm — so every ad rule lives
+    // beside the other ad hooks. This single model hook stays the only thing that
+    // touches FBMemModelObject.
+    if (FBPModelIsBlockedAd(model)) return YES;
+
     // Most models have no category at all; bail out before doing any work.
     if ([model respondsToSelector:@selector(category)]) {
         NSString *category = [model category];
@@ -124,12 +131,6 @@ static BOOL FBPShouldFilterModel(id model) {
             NSString *key = FBPCategoryMap()[category];
             if (key && FBPEnabled(key)) return YES;
         }
-    }
-
-    // A non-nil sponsoredData marks a paid unit even when the category token
-    // says otherwise, so it is checked independently.
-    if (FBPEnabled(FBPKeyNoAds) && [model respondsToSelector:@selector(sponsoredData)]) {
-        if ([model sponsoredData] != nil) return YES;
     }
 
     if (FBPEnabled(FBPKeyNoThreads) && FBPIsThreadsUnit(model)) {
