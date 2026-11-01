@@ -1,11 +1,13 @@
-// Main settings screen. A branded header card (topbar) scrolls above grouped
-// sections of icon rows — one card per category. Each row pairs a monochrome
-// glyph with a title, an optional subtitle, and a trailing control (switch, value
-// or chevron), vertically centred against the icon.
+// Settings UI.
 //
-// The whole panel uses a fixed dark palette — pure-black background, dark-grey
-// cards — pinned regardless of the host app's OLED / dark / light setting, so the
-// screen always reads the same way. See FBPPanelColor / FBPCardColor below.
+// A top-level menu of categories (each a row with a monochrome glyph, a title
+// and a short summary) plus two info cards (app versions, developer / links).
+// Tapping a category pushes a dedicated page holding just that category's
+// switches. This mirrors the iOS Settings pattern — familiar, professional, and
+// short per screen instead of one long mixed list.
+//
+// The whole panel uses a fixed dark palette (FBPPanelColor / FBPCardColor),
+// pinned regardless of the host app's OLED / dark / light setting.
 
 #import "FBPSettingsController.h"
 #import "FBPPrefs.h"
@@ -19,47 +21,64 @@
 
 #import <objc/runtime.h>
 
-// Row model keys.
-static NSString *const kRowKey     = @"key";
+// The tweak's version is injected from the control file at build time
+// (-DFBP_VERSION in the Makefile), so it is never hardcoded here.
+#ifndef FBP_VERSION
+#define FBP_VERSION @"—"
+#endif
+
+#pragma mark - Row / section model keys
+
 static NSString *const kRowType    = @"type";
+static NSString *const kRowKey     = @"key";     // pref key, action id, or link URL
 static NSString *const kRowTitle   = @"title";
 static NSString *const kRowDesc    = @"desc";
-static NSString *const kRowIcon    = @"icon";     // bundled glyph name, else SF Symbol
-static NSString *const kRowColor   = @"color";    // icon tile colour
-static NSString *const kRowNav     = @"nav";      // @YES -> disclosure chevron
-static NSString *const kRowDanger  = @"danger";   // @YES -> destructive (red) title
+static NSString *const kRowIcon    = @"icon";
+static NSString *const kRowValue   = @"value";   // trailing value text (info / action)
+static NSString *const kRowLink    = @"link";    // tappable URL (info rows)
+static NSString *const kRowDanger  = @"danger";
+static NSString *const kRowCategory = @"category"; // detail sections for a menu row
 
-static NSString *const kTypeSwitch = @"bool";
-static NSString *const kTypeAction = @"action";
+static NSString *const kTypeSwitch   = @"switch";
+static NSString *const kTypeAction   = @"action";
+static NSString *const kTypeInfo     = @"info";
+static NSString *const kTypeCategory = @"catnav";
+
+static NSString *const kSecRows   = @"rows";
+static NSString *const kSecFooter = @"footer";
 
 static NSString *const kActionClearCache  = @"clearCache";
 static NSString *const kActionAppIcon     = @"appIcon";
 static NSString *const kActionWelcome     = @"welcome";
 static NSString *const kActionReset       = @"reset";
 static NSString *const kActionLanguage    = @"language";
-static NSString *const kActionCheckUpdate  = @"checkUpdate";
+static NSString *const kActionCheckUpdate = @"checkUpdate";
 
-static NSString *const kCellIdentifier   = @"fbp.settings.row";
+static NSString *const kCellIdentifier = @"fbp.settings.row";
+static NSString *const kTelegramURL    = @"https://t.me/ReFacebookPlus";
+static NSString *const kGitHubURL      = @"https://github.com/SHAJON-404/Facebook-Plus";
 
-static NSString *const kTelegramURL = @"https://t.me/ReFacebookPlus";
-
-static const CGFloat kCardInset    = 16.0;
 static const CGFloat kContentInset = 16.0;
-static const CGFloat kIconTile     = 29.0;   // icon slot width (keeps label alignment)
-static const CGFloat kIconGlyph    = 22.0;   // monochrome glyph size within the slot
 
-// The fixed dark palette (FBPPanelColor / FBPCardColor / FBPIconColor) lives in
-// FBPResources so every tweak screen shares one source of truth.
+#pragma mark - Icon loading
 
-#pragma mark - Card view
+/// Monochrome bundled glyph by default; a few assets are solid brand / app logos
+/// and are rendered in their own colours instead of flattened to white.
+static UIImage *FBPSettingsIcon(NSString *name) {
+    static NSSet *original;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{ original = [NSSet setWithArray:@[@"facebook", @"logo", @"telegram"]]; });
 
-/// An FBP-prefixed plain view. The class prefix is load-bearing: the OLED sweep
-/// blackens any dark -backgroundColor it sees except on FBP* views, so the branded
-/// header card must be an FBP* view or it turns invisible in OLED mode.
-@interface FBPCardView : UIView
-@end
-@implementation FBPCardView
-@end
+    if ([original containsObject:name]) {
+        UIImage *img = [UIImage imageNamed:name
+                                  inBundle:NSBundle.fbp_resourceBundle
+             compatibleWithTraitCollection:nil];
+        return [img imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+    }
+    UIImage *img = [UIImage fbp_imageNamed:name];
+    if (!img) img = [UIImage fbp_symbolNamed:name size:20 weight:UIImageSymbolWeightRegular];
+    return img;
+}
 
 #pragma mark - Cell
 
@@ -77,12 +96,13 @@ static const CGFloat kIconGlyph    = 22.0;   // monochrome glyph size within the
 - (instancetype)initWithStyle:(UITableViewCellStyle)style
               reuseIdentifier:(NSString *)reuseIdentifier {
     if ((self = [super initWithStyle:style reuseIdentifier:reuseIdentifier])) {
-        // Painted card background (fixed dark grey) so the grouped cards read
-        // clearly on the black panel.
         self.backgroundColor = FBPCardColor();
+        UIView *selected = [[UIView alloc] init];
+        selected.backgroundColor = [UIColor colorWithWhite:1 alpha:0.06];
+        self.selectedBackgroundView = selected;
 
         // Invisible slot that keeps the glyph aligned and the label indent
-        // consistent; it no longer carries a coloured tile.
+        // consistent; the glyph is monochrome, with no coloured tile.
         _iconTile = [[UIView alloc] init];
         _iconTile.backgroundColor = UIColor.clearColor;
         _iconTile.translatesAutoresizingMaskIntoConstraints = NO;
@@ -100,14 +120,14 @@ static const CGFloat kIconGlyph    = 22.0;   // monochrome glyph size within the
         _titleLabel.numberOfLines = 0;
 
         _descLabel = [[UILabel alloc] init];
-        _descLabel.font = FBPFont(12.5, UIFontWeightRegular);
+        _descLabel.font = FBPFont(12, UIFontWeightRegular);
         _descLabel.textColor = UIColor.secondaryLabelColor;
         _descLabel.numberOfLines = 0;
 
         _labelStack = [[UIStackView alloc] initWithArrangedSubviews:@[_titleLabel, _descLabel]];
         _labelStack.axis = UILayoutConstraintAxisVertical;
         _labelStack.alignment = UIStackViewAlignmentLeading;
-        _labelStack.spacing = 2.0;
+        _labelStack.spacing = 1.5;
         _labelStack.translatesAutoresizingMaskIntoConstraints = NO;
         [self.contentView addSubview:_labelStack];
 
@@ -119,39 +139,31 @@ static const CGFloat kIconGlyph    = 22.0;   // monochrome glyph size within the
                                                      forAxis:UILayoutConstraintAxisHorizontal];
         [_accessoryContainer setContentHuggingPriority:UILayoutPriorityRequired
                                                forAxis:UILayoutConstraintAxisHorizontal];
-        [_accessoryContainer
-            setContentCompressionResistancePriority:UILayoutPriorityRequired
-                                            forAxis:UILayoutConstraintAxisHorizontal];
-
-        NSLayoutConstraint *top =
-            [_labelStack.topAnchor constraintGreaterThanOrEqualToAnchor:self.contentView.topAnchor
-                                                               constant:10];
-        NSLayoutConstraint *bot =
-            [_labelStack.bottomAnchor constraintLessThanOrEqualToAnchor:self.contentView.bottomAnchor
-                                                               constant:-10];
+        [_accessoryContainer setContentCompressionResistancePriority:UILayoutPriorityRequired
+                                                             forAxis:UILayoutConstraintAxisHorizontal];
 
         [NSLayoutConstraint activateConstraints:@[
             [_iconTile.leadingAnchor constraintEqualToAnchor:self.contentView.leadingAnchor
                                                     constant:kContentInset],
             [_iconTile.centerYAnchor constraintEqualToAnchor:self.contentView.centerYAnchor],
-            [_iconTile.widthAnchor constraintEqualToConstant:kIconTile],
-            [_iconTile.heightAnchor constraintEqualToConstant:kIconTile],
+            [_iconTile.widthAnchor constraintEqualToConstant:29],
+            [_iconTile.heightAnchor constraintEqualToConstant:29],
 
             [_iconView.centerXAnchor constraintEqualToAnchor:_iconTile.centerXAnchor],
             [_iconView.centerYAnchor constraintEqualToAnchor:_iconTile.centerYAnchor],
-            [_iconView.widthAnchor constraintEqualToConstant:kIconGlyph],
-            [_iconView.heightAnchor constraintEqualToConstant:kIconGlyph],
+            [_iconView.widthAnchor constraintEqualToConstant:22],
+            [_iconView.heightAnchor constraintEqualToConstant:22],
 
             [_labelStack.leadingAnchor constraintEqualToAnchor:_iconTile.trailingAnchor constant:12],
             [_labelStack.centerYAnchor constraintEqualToAnchor:self.contentView.centerYAnchor],
-            [_labelStack.trailingAnchor constraintEqualToAnchor:_accessoryContainer.leadingAnchor
-                                                       constant:-12],
-            top, bot,
+            [_labelStack.topAnchor constraintGreaterThanOrEqualToAnchor:self.contentView.topAnchor
+                                                               constant:9],
+            [_labelStack.trailingAnchor constraintLessThanOrEqualToAnchor:_accessoryContainer.leadingAnchor
+                                                                 constant:-10],
 
-            [_accessoryContainer.trailingAnchor
-                constraintEqualToAnchor:self.contentView.trailingAnchor constant:-kContentInset],
-            [_accessoryContainer.centerYAnchor
-                constraintEqualToAnchor:self.contentView.centerYAnchor],
+            [_accessoryContainer.trailingAnchor constraintEqualToAnchor:self.contentView.trailingAnchor
+                                                               constant:-kContentInset],
+            [_accessoryContainer.centerYAnchor constraintEqualToAnchor:self.contentView.centerYAnchor],
             [self.contentView.heightAnchor constraintGreaterThanOrEqualToConstant:52],
         ]];
     }
@@ -166,353 +178,123 @@ static const CGFloat kIconGlyph    = 22.0;   // monochrome glyph size within the
     self.descLabel.text = nil;
     self.descLabel.hidden = YES;
     self.iconView.image = nil;
+    self.iconView.tintColor = FBPIconColor();
     self.selectionStyle = UITableViewCellSelectionStyleNone;
 }
 
 @end
 
-#pragma mark - Controller
+#pragma mark - Base table controller
 
-@interface FBPSettingsController () <UITableViewDataSource, UITableViewDelegate>
-@property (nonatomic, copy) NSArray<NSDictionary *> *sections;
-@property (nonatomic, strong) UITableView *tableView;
+@interface FBPTableController : UITableViewController
 @end
 
-@implementation FBPSettingsController
+@implementation FBPTableController
 
-+ (void)presentFromViewController:(UIViewController *)viewController {
-    UIViewController *host = viewController ?: [FBPSheetPresenter topViewController];
-    while (host.presentedViewController) host = host.presentedViewController;
-    if (!host) return;
-
-    FBPSettingsController *settings = [[FBPSettingsController alloc] init];
-    settings.modalPresentationStyle = UIModalPresentationFullScreen;
-
-    [host presentViewController:settings animated:YES completion:nil];
+- (instancetype)init {
+    return [super initWithStyle:UITableViewStyleInsetGrouped];
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
-    self.sections = [self buildSections];
-
-    // Pin the panel to a fixed dark appearance. Forcing the dark interface style
-    // makes every dynamic system colour still in use (labels, separators,
-    // destructive red) resolve to its dark variant permanently, so the host app's
-    // OLED / dark / light state can never shift the look.
+    // Pin a fixed dark appearance so the host app's theme can never shift it.
     self.overrideUserInterfaceStyle = UIUserInterfaceStyleDark;
     self.view.backgroundColor = FBPPanelColor();
     self.view.tintColor = FBPTintColor();
 
-    _tableView = [[UITableView alloc] initWithFrame:CGRectZero
-                                              style:UITableViewStyleInsetGrouped];
-    _tableView.dataSource = self;
-    _tableView.delegate = self;
-    _tableView.backgroundColor = UIColor.clearColor;
-    _tableView.separatorInset = UIEdgeInsetsMake(0, kContentInset + kIconTile + 12, 0, 0);
-    _tableView.rowHeight = UITableViewAutomaticDimension;
-    _tableView.estimatedRowHeight = 56.0;
-    _tableView.translatesAutoresizingMaskIntoConstraints = NO;
-    [_tableView registerClass:FBPSettingsCell.class forCellReuseIdentifier:kCellIdentifier];
-    _tableView.tableHeaderView = [self buildHeaderCard];
-    [self.view addSubview:_tableView];
+    self.tableView.backgroundColor = UIColor.clearColor;
+    self.tableView.separatorInset = UIEdgeInsetsZero;      // full-width hairlines
+    self.tableView.separatorColor = [UIColor colorWithWhite:1 alpha:0.08];
+    if (@available(iOS 15.0, *)) self.tableView.sectionHeaderTopPadding = 0;
+    [self.tableView registerClass:FBPSettingsCell.class forCellReuseIdentifier:kCellIdentifier];
+    self.tableView.rowHeight = UITableViewAutomaticDimension;
+    self.tableView.estimatedRowHeight = 56;
 
-    [NSLayoutConstraint activateConstraints:@[
-        [_tableView.topAnchor constraintEqualToAnchor:self.view.topAnchor],
-        [_tableView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
-        [_tableView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
-        [_tableView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
-    ]];
+    UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+    [appearance configureWithOpaqueBackground];
+    appearance.backgroundColor = FBPPanelColor();
+    appearance.shadowColor = UIColor.clearColor;
+    appearance.titleTextAttributes = @{
+        NSForegroundColorAttributeName : UIColor.whiteColor,
+        NSFontAttributeName : FBPFont(20, UIFontWeightSemibold),
+    };
+    self.navigationController.navigationBar.standardAppearance = appearance;
+    self.navigationController.navigationBar.scrollEdgeAppearance = appearance;
+    self.navigationController.navigationBar.compactAppearance = appearance;
+    self.navigationController.navigationBar.tintColor = FBPTintColor();
 }
 
-#pragma mark - Header card (its own card, scrolls with content)
+#pragma mark Spacing (tight, even gaps between cards)
 
-- (UIView *)buildHeaderCard {
-    UIView *container = [[UIView alloc]
-        initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 98)];
-
-    FBPCardView *card = [[FBPCardView alloc] init];
-    card.backgroundColor = FBPCardColor();
-    card.layer.cornerRadius = 18;
-    card.layer.cornerCurve = kCACornerCurveContinuous;
-    card.translatesAutoresizingMaskIntoConstraints = NO;
-    [container addSubview:card];
-
-    UIImageView *logo = [[UIImageView alloc] initWithImage:
-        [[UIImage imageNamed:@"logo"
-                    inBundle:NSBundle.fbp_resourceBundle
-compatibleWithTraitCollection:nil]
-            imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal]];
-    logo.contentMode = UIViewContentModeScaleAspectFit;
-    logo.layer.cornerRadius = 9;
-    logo.layer.cornerCurve = kCACornerCurveContinuous;
-    logo.clipsToBounds = YES;
-    logo.translatesAutoresizingMaskIntoConstraints = NO;
-    [logo.widthAnchor constraintEqualToConstant:38].active = YES;
-    [logo.heightAnchor constraintEqualToConstant:38].active = YES;
-
-    UILabel *title = [[UILabel alloc] init];
-    title.text = @"Facebook Plus";
-    title.font = FBPFont(22, UIFontWeightBold);
-    title.textColor = UIColor.labelColor;
-
-    UIStackView *titleRow = [[UIStackView alloc] initWithArrangedSubviews:@[logo, title]];
-    titleRow.axis = UILayoutConstraintAxisHorizontal;
-    titleRow.alignment = UIStackViewAlignmentCenter;
-    titleRow.spacing = 10;
-    titleRow.translatesAutoresizingMaskIntoConstraints = NO;
-    [card addSubview:titleRow];
-
-    UILabel *subtitle = [[UILabel alloc] init];
-    subtitle.text = FBPL(@"settings.subtitle");
-    subtitle.font = FBPFont(12.5, UIFontWeightRegular);
-    subtitle.textColor = UIColor.secondaryLabelColor;
-    subtitle.textAlignment = NSTextAlignmentCenter;
-    subtitle.translatesAutoresizingMaskIntoConstraints = NO;
-    [card addSubview:subtitle];
-
-    UIButton *close = [UIButton buttonWithType:UIButtonTypeSystem];
-    [close setImage:[UIImage fbp_symbolNamed:@"xmark.circle.fill" size:26
-                                     weight:UIImageSymbolWeightRegular]
-           forState:UIControlStateNormal];
-    close.tintColor = UIColor.tertiaryLabelColor;
-    close.translatesAutoresizingMaskIntoConstraints = NO;
-    [close addTarget:self action:@selector(closeButtonTapped)
-    forControlEvents:UIControlEventTouchUpInside];
-    [card addSubview:close];
-
-    [NSLayoutConstraint activateConstraints:@[
-        [card.topAnchor constraintEqualToAnchor:container.topAnchor constant:6],
-        [card.bottomAnchor constraintEqualToAnchor:container.bottomAnchor constant:-10],
-        [card.leadingAnchor constraintEqualToAnchor:container.leadingAnchor constant:kCardInset],
-        [card.trailingAnchor constraintEqualToAnchor:container.trailingAnchor constant:-kCardInset],
-
-        [titleRow.centerXAnchor constraintEqualToAnchor:card.centerXAnchor],
-        [titleRow.topAnchor constraintEqualToAnchor:card.topAnchor constant:14],
-        [titleRow.trailingAnchor constraintLessThanOrEqualToAnchor:close.leadingAnchor constant:-8],
-
-        [subtitle.centerXAnchor constraintEqualToAnchor:card.centerXAnchor],
-        [subtitle.topAnchor constraintEqualToAnchor:titleRow.bottomAnchor constant:2],
-
-        [close.trailingAnchor constraintEqualToAnchor:card.trailingAnchor constant:-14],
-        // Span the whole title+subtitle block so the (centred) glyph sits at its
-        // vertical middle, not level with the title alone.
-        [close.topAnchor constraintEqualToAnchor:titleRow.topAnchor],
-        [close.bottomAnchor constraintEqualToAnchor:subtitle.bottomAnchor],
-    ]];
-    return container;
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    return section == 0 ? 4 : 12;
 }
-
-- (void)closeButtonTapped {
-    [self dismissViewControllerAnimated:YES completion:nil];
-}
-
-#pragma mark - Model
-
-- (NSArray<NSDictionary *> *)buildSections {
-    return @[
-        @{ @"header" : @"Feed", @"rows" : @[
-            [self switchRow:FBPKeyNoAds title:FBPL(@"row.noads.title") desc:nil
-                       icon:@"ads" color:UIColor.systemRedColor],
-            [self switchRow:FBPKeyNoRecs title:FBPL(@"row.norecs.title")
-                       desc:FBPL(@"row.norecs.desc")
-                       icon:@"magic" color:UIColor.systemPurpleColor],
-            [self switchRow:FBPKeyNoPYMK title:FBPL(@"row.nopymk.title") desc:nil
-                       icon:@"people" color:UIColor.systemBlueColor],
-            [self switchRow:FBPKeyNoReels title:FBPL(@"row.noreels.title") desc:nil
-                       icon:@"reels" color:UIColor.systemPinkColor],
-            [self switchRow:FBPKeyNoStories title:FBPL(@"row.nostories.title")
-                       desc:FBPL(@"row.nostories.desc")
-                       icon:@"circle.dashed" color:UIColor.systemPurpleColor],
-            [self switchRow:FBPKeyNoThreads title:FBPL(@"row.nothreads.title")
-                       desc:FBPL(@"row.nothreads.desc")
-                       icon:@"at" color:UIColor.systemIndigoColor],
-            [self switchRow:FBPKeyNoGroupSuggestions title:FBPL(@"row.nogroups.title")
-                       desc:FBPL(@"row.nogroups.desc")
-                       icon:@"group" color:UIColor.systemTealColor],
-            [self switchRow:FBPKeyNoSuggestedPages title:FBPL(@"row.nosuggestedpages.title")
-                       desc:FBPL(@"row.nosuggestedpages.desc")
-                       icon:@"group" color:UIColor.systemOrangeColor],
-            [self switchRow:FBPKeyFeedLike title:FBPL(@"row.feedlike.title")
-                       desc:FBPL(@"row.feedlike.desc")
-                       icon:@"alert" color:UIColor.systemGreenColor],
-        ]},
-        @{ @"header" : @"Downloads", @"rows" : @[
-            [self switchRow:FBPKeyReelsDownloaderEnabled title:FBPL(@"row.downloadreels.title")
-                       desc:FBPL(@"row.downloadreels.desc")
-                       icon:@"download" color:UIColor.systemBlueColor],
-            [self switchRow:FBPKeyStoryDownloaderEnabled title:FBPL(@"row.downloadstories.title")
-                       desc:FBPL(@"row.downloadstories.desc")
-                       icon:@"download" color:UIColor.systemPurpleColor],
-        ]},
-        @{ @"header" : @"Reels", @"rows" : @[
-            [self switchRow:FBPKeyReelsLike title:FBPL(@"row.reelslike.title") desc:nil
-                       icon:@"alert" color:UIColor.systemGreenColor],
-            [self switchRow:FBPKeyReelsHideOverlay title:FBPL(@"row.hideoverlay.title")
-                       desc:FBPL(@"row.hideoverlay.desc")
-                       icon:@"eye" color:UIColor.systemIndigoColor],
-        ]},
-        @{ @"header" : @"Stories", @"rows" : @[
-            [self switchRow:FBPKeyAnonymousStories title:FBPL(@"row.anonstories.title")
-                       desc:FBPL(@"row.anonstories.desc")
-                       icon:@"incognito" color:UIColor.systemPurpleColor],
-            [self switchRow:FBPKeyNoAutoNext title:FBPL(@"row.noautonext.title") desc:nil
-                       icon:@"forward.end.alt.fill" color:UIColor.systemOrangeColor],
-            [self switchRow:FBPKeyNoStoryPYMK title:FBPL(@"row.nostorypymk.title")
-                       desc:FBPL(@"row.nostorypymk.desc")
-                       icon:@"people" color:UIColor.systemBlueColor],
-        ]},
-        @{ @"header" : @"Appearance", @"rows" : @[
-            [self switchRow:FBPKeyOLED title:FBPL(@"row.oled.title")
-                       desc:FBPL(@"row.oled.desc")
-                       icon:@"moon.fill" color:UIColor.systemIndigoColor],
-            @{ kRowKey : kActionAppIcon, kRowType : kTypeAction, kRowNav : @YES,
-               kRowTitle : FBPL(@"row.appicon.title"), kRowDesc : FBPL(@"row.appicon.desc"),
-               kRowIcon : @"app.badge.fill", kRowColor : UIColor.systemBlueColor },
-        ]},
-        @{ @"header" : @"General", @"rows" : @[
-            [self switchRow:FBPKeyLinksInSafari title:FBPL(@"row.linksinsafari.title")
-                       desc:FBPL(@"row.linksinsafari.desc")
-                       icon:@"safari.fill" color:UIColor.systemBlueColor],
-            @{ kRowKey : kActionLanguage, kRowType : kTypeAction, kRowNav : @YES,
-               kRowTitle : FBPL(@"row.language.title"),
-               kRowIcon : @"globe", kRowColor : UIColor.systemBlueColor },
-            [self switchRow:FBPKeyAutoClearCache title:FBPL(@"row.autoclear.title") desc:nil
-                       icon:@"arrow.triangle.2.circlepath" color:UIColor.systemTealColor],
-            @{ kRowKey : kActionClearCache, kRowType : kTypeAction,
-               kRowTitle : FBPL(@"row.clearcache.title"),
-               kRowIcon : @"trash.fill", kRowColor : UIColor.systemRedColor },
-            @{ kRowKey : kActionCheckUpdate, kRowType : kTypeAction,
-               kRowTitle : FBPL(@"row.checkupdate.title"), kRowDesc : FBPL(@"row.checkupdate.desc"),
-               kRowIcon : @"arrow.down.circle", kRowColor : UIColor.systemBlueColor },
-            @{ kRowKey : kActionWelcome, kRowType : kTypeAction, kRowNav : @YES,
-               kRowTitle : FBPL(@"row.welcome.title"),
-               kRowIcon : @"hand.wave.fill", kRowColor : FBPTintColor() },
-            @{ kRowKey : kActionReset, kRowType : kTypeAction, kRowDanger : @YES,
-               kRowTitle : FBPL(@"row.reset.title"),
-               kRowIcon : @"arrow.counterclockwise", kRowColor : UIColor.systemRedColor },
-        ]},
-    ];
-}
-
-- (NSDictionary *)switchRow:(NSString *)key title:(NSString *)title desc:(NSString *)desc
-                       icon:(NSString *)icon color:(UIColor *)color {
-    NSMutableDictionary *row = [@{
-        kRowKey : key, kRowType : kTypeSwitch, kRowTitle : title,
-        kRowIcon : icon, kRowColor : color,
-    } mutableCopy];
-    if (desc) row[kRowDesc] = desc;
-    return row;
-}
-
-- (NSArray<NSDictionary *> *)rowsInSection:(NSInteger)section {
-    return self.sections[section][@"rows"];
-}
-
-#pragma mark - UITableViewDataSource / Delegate
-
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return (NSInteger)self.sections.count;
-}
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return (NSInteger)[self rowsInSection:section].count;
-}
-
-// No section labels — an empty spacer sets the gap between cards. The sections'
-// "header" strings in the model stay as in-code documentation of the grouping.
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
     return [[UIView alloc] init];
 }
-
-- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
-    return 18.0;
-}
-
-// Centred credit footer under the last section, with a tappable @SHAJON handle
-// that opens Telegram.
-- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
-    if (section != (NSInteger)self.sections.count - 1) return nil;
-
-    UIView *footer = [[UIView alloc] init];
-
-    UILabel *prefix = [[UILabel alloc] init];
-    prefix.text = FBPL(@"footer.by");
-    prefix.font = FBPFont(13, UIFontWeightRegular);
-    prefix.textColor = UIColor.secondaryLabelColor;
-
-    UIButton *handle = [UIButton buttonWithType:UIButtonTypeSystem];
-    [handle setTitle:@"@SHAJON" forState:UIControlStateNormal];
-    handle.titleLabel.font = FBPFont(13, UIFontWeightSemibold);
-    [handle setTitleColor:FBPTintColor() forState:UIControlStateNormal];
-    [handle addTarget:self action:@selector(openDeveloperTelegram)
-    forControlEvents:UIControlEventTouchUpInside];
-
-    UIStackView *stack = [[UIStackView alloc] initWithArrangedSubviews:@[prefix, handle]];
-    stack.axis = UILayoutConstraintAxisHorizontal;
-    stack.alignment = UIStackViewAlignmentCenter;
-    stack.spacing = 0;
-    stack.translatesAutoresizingMaskIntoConstraints = NO;
-    [footer addSubview:stack];
-
-    [NSLayoutConstraint activateConstraints:@[
-        [stack.centerXAnchor constraintEqualToAnchor:footer.centerXAnchor],
-        [stack.topAnchor constraintEqualToAnchor:footer.topAnchor constant:14],
-        [stack.bottomAnchor constraintEqualToAnchor:footer.bottomAnchor constant:-14],
-    ]];
-    return footer;
-}
-
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
-    return (section == (NSInteger)self.sections.count - 1) ? 46.0 : CGFLOAT_MIN;
+    if ([self respondsToSelector:@selector(tableView:titleForFooterInSection:)]) {
+        NSString *footer = [(id<UITableViewDataSource>)self tableView:tableView
+                                             titleForFooterInSection:section];
+        if (footer.length) return UITableViewAutomaticDimension;
+    }
+    return CGFLOAT_MIN;
 }
 
-- (void)openDeveloperTelegram {
-    NSURL *url = [NSURL URLWithString:kTelegramURL];
-    if (url) [UIApplication.sharedApplication openURL:url options:@{} completionHandler:nil];
-}
+#pragma mark Cell configuration (shared)
 
-- (UITableViewCell *)tableView:(UITableView *)tableView
-         cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSDictionary *row = [self rowsInSection:indexPath.section][indexPath.row];
-    FBPSettingsCell *cell = [tableView dequeueReusableCellWithIdentifier:kCellIdentifier
-                                                            forIndexPath:indexPath];
+- (void)configureCell:(FBPSettingsCell *)cell withRow:(NSDictionary *)row {
     cell.titleLabel.text = row[kRowTitle];
     cell.titleLabel.textColor = [row[kRowDanger] boolValue] ? UIColor.systemRedColor
                                                             : UIColor.labelColor;
     NSString *desc = row[kRowDesc];
     cell.descLabel.text = desc;
-    cell.descLabel.hidden = (desc == nil);
+    cell.descLabel.hidden = (desc.length == 0);
 
-    // Direct monochrome glyph — no coloured tile. Prefer the bundled PNG; fall
-    // back to a thin SF Symbol so the whole set reads as one line-icon family.
-    UIImage *icon = [UIImage fbp_imageNamed:row[kRowIcon]];
-    if (!icon) icon = [UIImage fbp_symbolNamed:row[kRowIcon] size:19
-                                        weight:UIImageSymbolWeightRegular];
+    UIImage *icon = FBPSettingsIcon(row[kRowIcon]);
     cell.iconView.image = icon;
+    cell.iconView.tintColor = FBPIconColor();
 
-    if ([row[kRowType] isEqualToString:kTypeSwitch]) {
+    NSString *type = row[kRowType];
+
+    if ([type isEqualToString:kTypeSwitch]) {
         UISwitch *toggle = [[UISwitch alloc] init];
         toggle.onTintColor = FBPTintColor();
         toggle.on = FBPEnabled(row[kRowKey]);
         objc_setAssociatedObject(toggle, @selector(tag), row[kRowKey],
                                  OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-        [toggle addTarget:self action:@selector(toggleSwitch:)
+        [toggle addTarget:self action:@selector(fbpToggleSwitch:)
          forControlEvents:UIControlEventValueChanged];
         [self setAccessory:toggle inCell:cell];
 
-    } else {
-        cell.selectionStyle = UITableViewCellSelectionStyleDefault;
+    } else if ([type isEqualToString:kTypeInfo]) {
+        NSString *link = row[kRowLink];
+        UILabel *value = [[UILabel alloc] init];
+        value.text = row[kRowValue];
+        value.font = FBPFont(15, link.length ? UIFontWeightMedium : UIFontWeightRegular);
+        value.textColor = link.length ? FBPTintColor() : UIColor.labelColor;
+        value.textAlignment = NSTextAlignmentRight;
+        [self setAccessory:value inCell:cell];
+        cell.selectionStyle = link.length ? UITableViewCellSelectionStyleDefault
+                                          : UITableViewCellSelectionStyleNone;
 
+    } else {   // action / category — value and/or chevron
+        cell.selectionStyle = UITableViewCellSelectionStyleDefault;
         NSMutableArray<UIView *> *pieces = [NSMutableArray array];
-        if ([row[kRowKey] isEqualToString:kActionClearCache]) {
-            UILabel *value = [[UILabel alloc] init];
-            value.font = FBPFont(15, UIFontWeightRegular);
-            value.textColor = UIColor.secondaryLabelColor;
-            [self cacheSizeWithCompletion:^(NSString *size) { value.text = size; }];
-            [pieces addObject:value];
+        NSString *value = row[kRowValue];
+        if (value.length) {
+            UILabel *valueLabel = [[UILabel alloc] init];
+            valueLabel.font = FBPFont(15, UIFontWeightRegular);
+            valueLabel.textColor = UIColor.secondaryLabelColor;
+            valueLabel.text = value;
+            [pieces addObject:valueLabel];
         }
-        if ([row[kRowNav] boolValue]) {
+        BOOL showChevron = [type isEqualToString:kTypeCategory] ||
+                           row[kRowCategory] != nil ||
+                           [row[kRowKey] isEqualToString:kActionAppIcon] ||
+                           [row[kRowKey] isEqualToString:kActionLanguage] ||
+                           [row[kRowKey] isEqualToString:kActionWelcome];
+        if (showChevron) {
             UIImageView *chevron = [[UIImageView alloc] initWithImage:
                 [UIImage fbp_symbolNamed:@"chevron.right" size:13 weight:UIImageSymbolWeightSemibold]];
             chevron.tintColor = UIColor.tertiaryLabelColor;
@@ -526,11 +308,8 @@ compatibleWithTraitCollection:nil]
             [self setAccessory:stack inCell:cell];
         }
     }
-    return cell;
 }
 
-/// Pins the accessory to the trailing/centre of its container at its natural
-/// size — so a switch, a value or a chevron is never stretched.
 - (void)setAccessory:(UIView *)view inCell:(FBPSettingsCell *)cell {
     view.translatesAutoresizingMaskIntoConstraints = NO;
     [cell.accessoryContainer addSubview:view];
@@ -542,51 +321,198 @@ compatibleWithTraitCollection:nil]
     ]];
 }
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    [tableView deselectRowAtIndexPath:indexPath animated:YES];
-
-    NSDictionary *row = [self rowsInSection:indexPath.section][indexPath.row];
-    if (![row[kRowType] isEqualToString:kTypeAction]) return;
-    NSString *key = row[kRowKey];
-
-    if ([key isEqualToString:kActionClearCache]) {
-        [self clearCache];
-    } else if ([key isEqualToString:kActionAppIcon]) {
-        [self presentInNavigation:[[FBPAppIconController alloc] init]];
-    } else if ([key isEqualToString:kActionWelcome]) {
-        [self dismissViewControllerAnimated:YES completion:^{ [FBPWelcomeController present]; }];
-    } else if ([key isEqualToString:kActionReset]) {
-        [self confirmReset];
-    } else if ([key isEqualToString:kActionLanguage]) {
-        [self presentInNavigation:[[FBPLanguageController alloc] init]];
-    } else if ([key isEqualToString:kActionCheckUpdate]) {
-        [FBPUpdateChecker checkManuallyFromViewController:self];
-    }
-}
-
-// Re-localize when returning from a pushed page (e.g. the language picker), so a
-// language change made there is reflected here immediately.
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-    self.sections = [self buildSections];
-    self.tableView.tableHeaderView = [self buildHeaderCard];
-    [self.tableView reloadData];
-}
-
-- (void)presentInNavigation:(UIViewController *)controller {
-    UINavigationController *navigation =
-        [[UINavigationController alloc] initWithRootViewController:controller];
-    [self presentViewController:navigation animated:YES completion:nil];
-}
-
-#pragma mark - Actions
-
-- (void)toggleSwitch:(UISwitch *)sender {
+- (void)fbpToggleSwitch:(UISwitch *)sender {
     NSString *key = objc_getAssociatedObject(sender, @selector(tag));
     if (!key) return;
     [FBPPrefs.shared setBool:sender.isOn forKey:key];
     [FBPPrefs.shared commit];
 }
+
+@end
+
+#pragma mark - Row builders (shared helpers)
+
+static NSDictionary *FBPSwitchRow(NSString *key, NSString *title, NSString *desc, NSString *icon) {
+    NSMutableDictionary *row = [@{ kRowType : kTypeSwitch, kRowKey : key,
+                                   kRowTitle : title, kRowIcon : icon } mutableCopy];
+    if (desc.length) row[kRowDesc] = desc;
+    return row;
+}
+static NSDictionary *FBPActionRow(NSString *action, NSString *title, NSString *desc,
+                                  NSString *icon, BOOL danger) {
+    NSMutableDictionary *row = [@{ kRowType : kTypeAction, kRowKey : action,
+                                   kRowTitle : title, kRowIcon : icon } mutableCopy];
+    if (desc.length) row[kRowDesc] = desc;
+    if (danger) row[kRowDanger] = @YES;
+    return row;
+}
+static NSDictionary *FBPInfoRow(NSString *title, NSString *value, NSString *icon, NSString *link) {
+    NSMutableDictionary *row = [@{ kRowType : kTypeInfo, kRowTitle : title,
+                                   kRowValue : value, kRowIcon : icon } mutableCopy];
+    if (link.length) row[kRowLink] = link;
+    return row;
+}
+static NSDictionary *FBPSection(NSString *footer, NSArray *rows) {
+    NSMutableDictionary *s = [@{ kSecRows : rows } mutableCopy];
+    if (footer.length) s[kSecFooter] = footer;
+    return s;
+}
+
+#pragma mark - Category definitions
+
+/// The six categories; each has a title, summary, menu glyph, and the grouped
+/// sections shown on its own page.
+static NSArray<NSDictionary *> *FBPCategories(void) {
+    return @[
+        @{ kRowTitle : FBPL(@"cat.ads.title"), kRowDesc : FBPL(@"cat.ads.summary"),
+           kRowIcon : @"ads", kRowCategory : @[
+            FBPSection(nil, @[
+                FBPSwitchRow(FBPKeyNoAds, FBPL(@"row.noads.title"), FBPL(@"row.noads.desc"), @"ads"),
+            ]),
+            FBPSection(nil, @[
+                FBPSwitchRow(FBPKeyNoRecs, FBPL(@"row.norecs.title"), FBPL(@"row.norecs.desc"), @"magic"),
+                FBPSwitchRow(FBPKeyNoReels, FBPL(@"row.noreels.title"), nil, @"reels"),
+                FBPSwitchRow(FBPKeyNoStories, FBPL(@"row.nostories.title"), FBPL(@"row.nostories.desc"), @"incognito"),
+                FBPSwitchRow(FBPKeyNoThreads, FBPL(@"row.nothreads.title"), FBPL(@"row.nothreads.desc"), @"at"),
+            ]),
+            FBPSection(FBPL(@"footer.feedClutter"), @[
+                FBPSwitchRow(FBPKeyNoPYMK, FBPL(@"row.nopymk.title"), nil, @"people"),
+                FBPSwitchRow(FBPKeyNoGroupSuggestions, FBPL(@"row.nogroups.title"), nil, @"group"),
+                FBPSwitchRow(FBPKeyNoSuggestedPages, FBPL(@"row.nosuggestedpages.title"), nil, @"group"),
+            ]),
+        ]},
+        @{ kRowTitle : FBPL(@"cat.confirm.title"), kRowDesc : FBPL(@"cat.confirm.summary"),
+           kRowIcon : @"alert", kRowCategory : @[
+            FBPSection(FBPL(@"footer.confirm"), @[
+                FBPSwitchRow(FBPKeyFeedLike, FBPL(@"row.feedlike.title"), FBPL(@"row.feedlike.desc"), @"alert"),
+                FBPSwitchRow(FBPKeyConfirmComment, FBPL(@"row.confirmcomment.title"), FBPL(@"row.confirmcomment.desc"), @"alert"),
+                FBPSwitchRow(FBPKeyConfirmShare, FBPL(@"row.confirmshare.title"), FBPL(@"row.confirmshare.desc"), @"alert"),
+                FBPSwitchRow(FBPKeyConfirmPost, FBPL(@"row.confirmpost.title"), FBPL(@"row.confirmpost.desc"), @"alert"),
+                FBPSwitchRow(FBPKeyConfirmFriend, FBPL(@"row.confirmfriend.title"), FBPL(@"row.confirmfriend.desc"), @"people"),
+                FBPSwitchRow(FBPKeyConfirmFollow, FBPL(@"row.confirmfollow.title"), FBPL(@"row.confirmfollow.desc"), @"group"),
+            ]),
+        ]},
+        @{ kRowTitle : FBPL(@"cat.stories.title"), kRowDesc : FBPL(@"cat.stories.summary"),
+           kRowIcon : @"incognito", kRowCategory : @[
+            FBPSection(nil, @[
+                FBPSwitchRow(FBPKeyAnonymousStories, FBPL(@"row.anonstories.title"), FBPL(@"row.anonstories.desc"), @"incognito"),
+                FBPSwitchRow(FBPKeyNoAutoNext, FBPL(@"row.noautonext.title"), nil, @"reels"),
+                FBPSwitchRow(FBPKeyNoStoryPYMK, FBPL(@"row.nostorypymk.title"), FBPL(@"row.nostorypymk.desc"), @"people"),
+            ]),
+        ]},
+        @{ kRowTitle : FBPL(@"cat.downloads.title"), kRowDesc : FBPL(@"cat.downloads.summary"),
+           kRowIcon : @"download", kRowCategory : @[
+            FBPSection(nil, @[
+                FBPSwitchRow(FBPKeyReelsDownloaderEnabled, FBPL(@"row.downloadreels.title"), FBPL(@"row.downloadreels.desc"), @"download"),
+                FBPSwitchRow(FBPKeyStoryDownloaderEnabled, FBPL(@"row.downloadstories.title"), FBPL(@"row.downloadstories.desc"), @"download"),
+            ]),
+        ]},
+        @{ kRowTitle : FBPL(@"cat.appearance.title"), kRowDesc : FBPL(@"cat.appearance.summary"),
+           kRowIcon : @"magic", kRowCategory : @[
+            FBPSection(FBPL(@"row.oled.desc"), @[
+                FBPSwitchRow(FBPKeyOLED, FBPL(@"row.oled.title"), nil, @"moon.fill"),
+            ]),
+            FBPSection(nil, @[
+                FBPActionRow(kActionAppIcon, FBPL(@"row.appicon.title"), FBPL(@"row.appicon.desc"), @"app.badge.fill", NO),
+            ]),
+        ]},
+        @{ kRowTitle : FBPL(@"cat.general.title"), kRowDesc : FBPL(@"cat.general.summary"),
+           kRowIcon : @"setting", kRowCategory : @[
+            FBPSection(nil, @[
+                FBPSwitchRow(FBPKeyLinksInSafari, FBPL(@"row.linksinsafari.title"), FBPL(@"row.linksinsafari.desc"), @"safari.fill"),
+                FBPActionRow(kActionLanguage, FBPL(@"row.language.title"), nil, @"globe", NO),
+            ]),
+            FBPSection(nil, @[
+                FBPSwitchRow(FBPKeyAutoClearCache, FBPL(@"row.autoclear.title"), nil, @"arrow.triangle.2.circlepath"),
+                FBPActionRow(kActionClearCache, FBPL(@"row.clearcache.title"), nil, @"trash.fill", NO),
+                FBPActionRow(kActionCheckUpdate, FBPL(@"row.checkupdate.title"), FBPL(@"row.checkupdate.desc"), @"arrow.down.circle", NO),
+            ]),
+            FBPSection(nil, @[
+                FBPActionRow(kActionWelcome, FBPL(@"row.welcome.title"), nil, @"hand.wave.fill", NO),
+                FBPActionRow(kActionReset, FBPL(@"row.reset.title"), nil, @"arrow.counterclockwise", YES),
+            ]),
+        ]},
+    ];
+}
+
+#pragma mark - Category detail page
+
+@interface FBPSettingsDetailController : FBPTableController
+- (instancetype)initWithCategory:(NSDictionary *)category;
+@end
+
+@implementation FBPSettingsDetailController {
+    NSDictionary *_category;
+    NSArray<NSDictionary *> *_sections;
+}
+
+- (instancetype)initWithCategory:(NSDictionary *)category {
+    if ((self = [super init])) {
+        _category = category;
+        _sections = category[kRowCategory];
+    }
+    return self;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.title = _category[kRowTitle];
+}
+
+- (NSArray<NSDictionary *> *)rowsInSection:(NSInteger)section {
+    return _sections[section][kSecRows];
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView { return (NSInteger)_sections.count; }
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return (NSInteger)[self rowsInSection:section].count;
+}
+- (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section {
+    return _sections[section][kSecFooter];
+}
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    FBPSettingsCell *cell = [tableView dequeueReusableCellWithIdentifier:kCellIdentifier forIndexPath:indexPath];
+    [self configureCell:cell withRow:[self rowsInSection:indexPath.section][indexPath.row]];
+    return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    NSDictionary *row = [self rowsInSection:indexPath.section][indexPath.row];
+    if (![row[kRowType] isEqualToString:kTypeAction]) return;
+    NSString *action = row[kRowKey];
+
+    if ([action isEqualToString:kActionClearCache]) {
+        [self clearCache];
+    } else if ([action isEqualToString:kActionAppIcon]) {
+        [self.navigationController pushViewController:[[FBPAppIconController alloc] init] animated:YES];
+    } else if ([action isEqualToString:kActionLanguage]) {
+        [self.navigationController pushViewController:[[FBPLanguageController alloc] init] animated:YES];
+    } else if ([action isEqualToString:kActionCheckUpdate]) {
+        [FBPUpdateChecker checkManuallyFromViewController:self];
+    } else if ([action isEqualToString:kActionWelcome]) {
+        [self dismissViewControllerAnimated:YES completion:^{ [FBPWelcomeController present]; }];
+    } else if ([action isEqualToString:kActionReset]) {
+        [self confirmReset];
+    }
+}
+
+// Re-localize when returning from a pushed page (e.g. the language picker).
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    NSString *icon = _category[kRowIcon];
+    for (NSDictionary *category in FBPCategories()) {
+        if ([category[kRowIcon] isEqualToString:icon]) {
+            _category = category;
+            _sections = category[kRowCategory];
+            break;
+        }
+    }
+    self.title = _category[kRowTitle];
+    [self.tableView reloadData];
+}
+
+#pragma mark Actions
 
 - (void)confirmReset {
     UIAlertController *alert =
@@ -602,29 +528,8 @@ compatibleWithTraitCollection:nil]
         [self.tableView reloadData];
         [FBPToastManager.shared showMessage:FBPL(@"toast.settingsReset") success:YES];
     }]];
+    alert.view.tintColor = FBPTintColor();
     [self presentViewController:alert animated:YES completion:nil];
-}
-
-#pragma mark - Cache
-
-- (void)cacheSizeWithCompletion:(void (^)(NSString *))completion {
-    dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0), ^{
-        NSString *cachePath = NSSearchPathForDirectoriesInDomains(
-            NSCachesDirectory, NSUserDomainMask, YES).firstObject;
-        unsigned long long total = 0;
-        NSArray<NSString *> *subpaths =
-            [NSFileManager.defaultManager subpathsOfDirectoryAtPath:cachePath error:NULL];
-        for (NSString *subpath in subpaths) {
-            NSString *full = [cachePath stringByAppendingPathComponent:subpath];
-            NSDictionary *attributes =
-                [NSFileManager.defaultManager attributesOfItemAtPath:full error:NULL];
-            total += attributes.fileSize;
-        }
-        NSByteCountFormatter *formatter = [[NSByteCountFormatter alloc] init];
-        formatter.countStyle = NSByteCountFormatterCountStyleFile;
-        NSString *text = [formatter stringFromByteCount:(long long)total];
-        dispatch_async(dispatch_get_main_queue(), ^{ completion(text); });
-    });
 }
 
 - (void)clearCache {
@@ -638,10 +543,127 @@ compatibleWithTraitCollection:nil]
                 removeItemAtPath:[cachePath stringByAppendingPathComponent:item] error:NULL];
         }
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self.tableView reloadData];
             [FBPToastManager.shared showMessage:FBPL(@"toast.cacheCleared") success:YES];
         });
     });
+}
+
+@end
+
+#pragma mark - Top-level menu
+
+@interface FBPSettingsMenuController : FBPTableController
+@end
+
+@implementation FBPSettingsMenuController {
+    NSArray<NSDictionary *> *_categories;
+    NSArray<NSArray<NSDictionary *> *> *_sections;  // menu sections of rows
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.title = FBPL(@"nav.settings");
+    self.navigationItem.leftBarButtonItem =
+        [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"chevron.left"]
+                                         style:UIBarButtonItemStylePlain
+                                        target:self action:@selector(dismissSettings)];
+    self.navigationItem.leftBarButtonItem.tintColor = FBPTintColor();
+    [self rebuild];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [self rebuild];
+    [self.tableView reloadData];
+}
+
+- (void)rebuild {
+    _categories = FBPCategories();
+
+    NSMutableArray *categoryRows = [NSMutableArray array];
+    for (NSDictionary *category in _categories) {
+        [categoryRows addObject:@{
+            kRowType : kTypeCategory,
+            kRowTitle : category[kRowTitle],
+            kRowDesc : category[kRowDesc],
+            kRowIcon : category[kRowIcon],
+            kRowCategory : category[kRowCategory],
+        }];
+    }
+
+    // Both versions are auto-detected, never hardcoded: Facebook's from the host
+    // app's Info.plist (its full FBAppVersion, falling back to the short version),
+    // ours from the control file (via the FBP_VERSION macro).
+    NSString *fbVersion =
+        [NSBundle.mainBundle objectForInfoDictionaryKey:@"FBAppVersion"]
+        ?: [NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"]
+        ?: @"—";
+    NSString *plusVersion = FBP_VERSION;
+
+    _sections = @[
+        categoryRows,
+        @[
+            FBPInfoRow(FBPL(@"info.fbVersion"), fbVersion, @"facebook", nil),
+            FBPInfoRow(FBPL(@"info.fbPlusVersion"), plusVersion, @"logo", nil),
+        ],
+        @[
+            FBPInfoRow(FBPL(@"info.developer"), @"S. SHAJON", @"people", nil),
+            FBPInfoRow(FBPL(@"info.github"), @"SHAJON-404", @"github", kGitHubURL),
+            FBPInfoRow(FBPL(@"info.telegram"), @"@ReFacebookPlus", @"telegram", kTelegramURL),
+        ],
+    ];
+}
+
+- (void)dismissSettings {
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView { return (NSInteger)_sections.count; }
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return (NSInteger)_sections[section].count;
+}
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    FBPSettingsCell *cell = [tableView dequeueReusableCellWithIdentifier:kCellIdentifier forIndexPath:indexPath];
+    [self configureCell:cell withRow:_sections[indexPath.section][indexPath.row]];
+    return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    NSDictionary *row = _sections[indexPath.section][indexPath.row];
+
+    if ([row[kRowType] isEqualToString:kTypeCategory]) {
+        [self.navigationController pushViewController:
+            [[FBPSettingsDetailController alloc] initWithCategory:row] animated:YES];
+        return;
+    }
+    NSString *link = row[kRowLink];
+    if (link.length) {
+        NSURL *url = [NSURL URLWithString:link];
+        if (url) [UIApplication.sharedApplication openURL:url options:@{} completionHandler:nil];
+    }
+}
+
+@end
+
+#pragma mark - Public entry
+
+@implementation FBPSettingsController
+
++ (void)presentFromViewController:(UIViewController *)viewController {
+    UIViewController *host = viewController ?: [FBPSheetPresenter topViewController];
+    while (host.presentedViewController) host = host.presentedViewController;
+    if (!host) return;
+
+    FBPSettingsMenuController *menu = [[FBPSettingsMenuController alloc] init];
+    UINavigationController *navigation =
+        [[UINavigationController alloc] initWithRootViewController:menu];
+    navigation.modalPresentationStyle = UIModalPresentationFullScreen;
+    navigation.overrideUserInterfaceStyle = UIUserInterfaceStyleDark;
+    // Paint the container black up front so the panel slides in already-dark —
+    // otherwise the cards appear a frame before the background fills in.
+    navigation.view.backgroundColor = FBPPanelColor();
+    [host presentViewController:navigation animated:YES completion:nil];
 }
 
 @end
