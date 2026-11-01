@@ -28,7 +28,7 @@
   <tbody>
     <tr>
       <td nowrap>📰 <b>Feed</b></td>
-      <td>Remove Ads & Sponsored Posts (feed, video & stories)<br>Hide "People you may know", Group & Page suggestions<br>Remove Reels carousel, Threads promo & <b>Stories</b> (tray + single cards)</td>
+      <td>Remove Ads & Sponsored Posts (feed, video, stories & <b>Marketplace</b>)<br>Hide "People you may know", Group & Page suggestions<br>Remove Reels carousel, Threads promo & <b>Stories</b> (tray + single cards)</td>
     </tr>
     <tr>
       <td nowrap>✅ <b>Confirmations</b></td>
@@ -192,7 +192,7 @@ This writes a per-machine `.clangd` (with your theos path and SDK baked in) and 
 ├── src                 # Tweak source code
 │   ├── Core            # Constructor, preferences, and resources
 │   ├── Features        # All hooks & feature implementations:
-│   │   ├── Ads         # Feed, video & story ad removal (one ad-detection chokepoint)
+│   │   ├── Ads         # Feed, video, story & Marketplace ad removal (feed chokepoint + RN/GraphQL)
 │   │   ├── AppChrome   # UI settings gesture (TabBar, Wordmark long-press & Settings Button)
 │   │   ├── AppIcons    # Custom app-icon picker logic
 │   │   ├── Calls       # Incoming Call Blocker (PushKit & CallKit interceptors)
