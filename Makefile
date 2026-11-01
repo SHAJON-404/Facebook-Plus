@@ -1,4 +1,4 @@
-TARGET := iphone:clang:latest:17.0
+TARGET := iphone:clang:latest:15.1
 # arm64 only. This targets iPhone 11 → latest, all sideloaded / re-signed: those
 # apps run in the arm64 slice even on A12+ (arm64e) devices — the arm64e slice is
 # reserved for Apple-signed platform binaries — so an injected arm64e slice would
@@ -136,6 +136,9 @@ compile-commands:
 		echo "    - unknown_type_name"; \
 		echo "    - undeclared_var_use"; \
 		echo "    - duplicate_decl_context"; \
+		echo "    - expected_unqualified_id"; \
+		echo "    - err_expected_unqualified"; \
+		echo "    - missing_method_context"; \
 	} > .clangd
 	@echo "==> Recording compile commands with bear…"
 	@$(MAKE) clean >/dev/null
