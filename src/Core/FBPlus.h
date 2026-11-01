@@ -58,20 +58,26 @@ extern NSString *const FBPKeyNoThreads;         // Remove the Threads promo unit
 extern NSString *const FBPKeyNoGroupSuggestions;// Remove "groups you should join"
 extern NSString *const FBPKeyNoSuggestedPages;  // Remove "suggested pages for you"
 
+// Confirmations (opt-in: guard an action behind a prompt)
+extern NSString *const FBPKeyConfirmComment;    // Confirm before posting a comment
+extern NSString *const FBPKeyConfirmFriend;     // Confirm before a friend-request action
+extern NSString *const FBPKeyConfirmShare;      // Confirm before sharing
+extern NSString *const FBPKeyConfirmFollow;     // Confirm before following / joining
+extern NSString *const FBPKeyConfirmPost;       // Confirm before publishing a post
+
 // Downloads
 extern NSString *const FBPKeyReelsDownloaderEnabled;
 extern NSString *const FBPKeyStoryDownloaderEnabled;
 
 // Reels
-extern NSString *const FBPKeyReelsLike;         // Confirm reels like
-extern NSString *const FBPKeyReelsHideOverlay;  // Show the "hide overlay" toggle on Reels
+extern NSString *const FBPKeyReelsHideOverlay;  // Strip the Reels overlay (always on; no toggle)
 
 // Stories
 extern NSString *const FBPKeyAnonymousStories;
 extern NSString *const FBPKeyNoAutoNext;
 
 // Feed interaction
-extern NSString *const FBPKeyFeedLike;          // Confirm post like
+extern NSString *const FBPKeyFeedLike;          // Confirm every like (feed + Reels)
 
 // Appearance
 extern NSString *const FBPKeyOLED;              // True-black background in dark mode
@@ -87,6 +93,21 @@ extern NSString *const FBPKeyLanguage;          // In-tweak UI language ("" = En
 // Internal
 extern NSString *const FBPKeyIntroduced;        // Onboarding has been shown
 extern NSString *const FBPKeyLastNotifiedVersion; // Latest release the user was told about
+
+#pragma mark - Confirmations
+
+/// One shared "a confirmation is on screen" latch, so the two confirmation
+/// paths (the ComponentKit forwarder and the method-swizzle commit hooks) never
+/// stack a second prompt on top of the first — which is what made tapping a post
+/// raise the prompt over and over.
+#ifdef __cplusplus
+extern "C" {
+#endif
+BOOL FBPConfirmPromptVisible(void);
+void FBPSetConfirmPromptVisible(BOOL visible);
+#ifdef __cplusplus
+}
+#endif
 
 #pragma mark - Accessibility identifiers used to locate Facebook views
 //

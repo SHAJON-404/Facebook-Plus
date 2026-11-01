@@ -25,6 +25,31 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSString *)storyBucketType;
 @end
 
+#pragma mark - Action-confirmation targets
+//
+// Each exposes the single method that commits the action, verified present in
+// FBSharedFramework. The hooks guard that method behind an opt-in prompt.
+
+@interface FBCommentCreateMutator : NSObject
+- (void)publishWithSession:(id)session;
+@end
+
+@interface FBPersonFriendableTableViewCell : UITableViewCell
+- (void)handleFriendButtonTapped:(id)sender;
+@end
+
+@interface FBPersonFriendable2TableViewCell : UITableViewCell
+- (void)handleFriendButtonTapped:(id)sender;
+@end
+
+@interface FBSnacksFeedbackComposerShareButtonComponentController : NSObject
+- (void)didTapShareButton;
+@end
+
+@interface FBSnacksFollowButtonComponentController : NSObject
+- (void)didTapFollowButton;
+@end
+
 #pragma mark - Stories ("Snacks")
 
 @interface FBSnacksBucketsSeenStateManager : NSObject
