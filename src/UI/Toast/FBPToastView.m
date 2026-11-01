@@ -1,15 +1,19 @@
-// The toast pill view: builds and animates the message, glyph and progress
-// layouts, and handles tap-to-dismiss and the stop button.
+// The toast pill: a blurred capsule with a tinted status badge, a centred
+// message and (for downloads) a progress bar and stop button. It rises into
+// place with a soft spring and fades out — no corner-scale pop — so it reads as
+// a polished, deliberate HUD rather than a debug print.
 
 #import "FBPToast.h"
 #import "FBPResources.h"
 
-static const CGFloat kToastHeight   = 52.0;
-static const CGFloat kToastMinWidth = 160.0;
-static const CGFloat kToastPadding  = 14.0;
-static const CGFloat kToastRadius   = 26.0;
+static const CGFloat kToastHeight   = 54.0;
+static const CGFloat kToastMinWidth = 170.0;
+static const CGFloat kToastPadding  = 12.0;
+static const CGFloat kToastRadius   = 27.0;
+static const CGFloat kBadgeSize     = 30.0;
 
 @interface FBPToastView ()
+@property (nonatomic, strong) UIView *badge;
 @property (nonatomic, strong) UILabel *toastLabel;
 @property (nonatomic, strong) UIImageView *toastIcon;
 @property (nonatomic, strong) UIButton *toastButton;
@@ -36,35 +40,46 @@ static const CGFloat kToastRadius   = 26.0;
     self.clipsToBounds = YES;
     self.layer.cornerRadius = kToastRadius;
     self.layer.cornerCurve = kCACornerCurveContinuous;
+    // A hairline rim lifts the capsule off whatever is behind it without a heavy
+    // shadow (which a clipped blur can't cast anyway).
+    self.layer.borderWidth = 1.0 / UIScreen.mainScreen.scale;
+    self.layer.borderColor = [UIColor.labelColor colorWithAlphaComponent:0.12].CGColor;
 
     UIView *content = self.contentView;
+
+    // The status glyph sits in a soft tinted disc so success / failure reads at a
+    // glance even before the text.
+    _badge = [[UIView alloc] init];
+    _badge.translatesAutoresizingMaskIntoConstraints = NO;
+    _badge.layer.cornerRadius = kBadgeSize / 2.0;
+    _badge.layer.cornerCurve = kCACornerCurveContinuous;
 
     _toastIcon = [[UIImageView alloc] init];
     _toastIcon.contentMode = UIViewContentModeScaleAspectFit;
     _toastIcon.translatesAutoresizingMaskIntoConstraints = NO;
-    _toastIcon.tintColor = UIColor.labelColor;
-    [content addSubview:_toastIcon];
+    _toastIcon.tintColor = UIColor.whiteColor;
+    [_badge addSubview:_toastIcon];
 
     _activityIndicator = [[UIActivityIndicatorView alloc]
         initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleMedium];
     _activityIndicator.translatesAutoresizingMaskIntoConstraints = NO;
     _activityIndicator.hidesWhenStopped = YES;
-    [content addSubview:_activityIndicator];
+    _activityIndicator.color = UIColor.labelColor;
+    [_badge addSubview:_activityIndicator];
 
     _toastLabel = [[UILabel alloc] init];
-    _toastLabel.font = [UIFont systemFontOfSize:15 weight:UIFontWeightMedium];
+    _toastLabel.font = [UIFont systemFontOfSize:15 weight:UIFontWeightSemibold];
     _toastLabel.textColor = UIColor.labelColor;
     _toastLabel.numberOfLines = 1;
-    _toastLabel.textAlignment = NSTextAlignmentCenter;
+    _toastLabel.textAlignment = NSTextAlignmentLeft;
     _toastLabel.adjustsFontSizeToFitWidth = YES;
     _toastLabel.minimumScaleFactor = 0.8;
 
-    // Icon + label as one centred group, so the message sits in the middle of
-    // the pill instead of being pushed to one side.
-    UIStackView *row = [[UIStackView alloc] initWithArrangedSubviews:@[_toastIcon, _toastLabel]];
+    // Badge + label as one centred group.
+    UIStackView *row = [[UIStackView alloc] initWithArrangedSubviews:@[_badge, _toastLabel]];
     row.axis = UILayoutConstraintAxisHorizontal;
     row.alignment = UIStackViewAlignmentCenter;
-    row.spacing = 8;
+    row.spacing = 10;
     row.translatesAutoresizingMaskIntoConstraints = NO;
     [content addSubview:row];
 
@@ -93,19 +108,22 @@ static const CGFloat kToastRadius   = 26.0;
         [self.heightAnchor constraintEqualToConstant:kToastHeight],
         _widthConstraint,
 
-        [_toastIcon.widthAnchor constraintEqualToConstant:22],
-        [_toastIcon.heightAnchor constraintEqualToConstant:22],
+        [_badge.widthAnchor constraintEqualToConstant:kBadgeSize],
+        [_badge.heightAnchor constraintEqualToConstant:kBadgeSize],
+        [_toastIcon.centerXAnchor constraintEqualToAnchor:_badge.centerXAnchor],
+        [_toastIcon.centerYAnchor constraintEqualToAnchor:_badge.centerYAnchor],
+        [_toastIcon.widthAnchor constraintEqualToConstant:18],
+        [_toastIcon.heightAnchor constraintEqualToConstant:18],
+        [_activityIndicator.centerXAnchor constraintEqualToAnchor:_badge.centerXAnchor],
+        [_activityIndicator.centerYAnchor constraintEqualToAnchor:_badge.centerYAnchor],
 
-        // The whole icon+label group is centred in the pill.
+        // The whole badge+label group is centred in the pill.
         [row.centerXAnchor constraintEqualToAnchor:content.centerXAnchor],
         [row.centerYAnchor constraintEqualToAnchor:content.centerYAnchor],
         [row.leadingAnchor constraintGreaterThanOrEqualToAnchor:content.leadingAnchor
                                                         constant:kToastPadding],
         [row.trailingAnchor constraintLessThanOrEqualToAnchor:content.trailingAnchor
                                                      constant:-kToastPadding],
-
-        [_activityIndicator.centerXAnchor constraintEqualToAnchor:_toastIcon.centerXAnchor],
-        [_activityIndicator.centerYAnchor constraintEqualToAnchor:_toastIcon.centerYAnchor],
 
         // Stop button and progress bar (used only by long-running toasts) sit as
         // overlays on the edges, so they never shift the centred message.
@@ -114,10 +132,10 @@ static const CGFloat kToastRadius   = 26.0;
         [_toastButton.centerYAnchor constraintEqualToAnchor:content.centerYAnchor],
 
         [_toastProgress.leadingAnchor constraintEqualToAnchor:content.leadingAnchor
-                                                     constant:kToastPadding],
+                                                     constant:kToastPadding + 4],
         [_toastProgress.trailingAnchor constraintEqualToAnchor:content.trailingAnchor
-                                                      constant:-kToastPadding],
-        [_toastProgress.bottomAnchor constraintEqualToAnchor:content.bottomAnchor constant:-8],
+                                                      constant:-(kToastPadding + 4)],
+        [_toastProgress.bottomAnchor constraintEqualToAnchor:content.bottomAnchor constant:-9],
     ]];
 
     UITapGestureRecognizer *tap =
@@ -142,10 +160,14 @@ static const CGFloat kToastRadius   = 26.0;
     self.toastProgress.hidden = YES;
     self.toastButton.hidden = YES;
     [self.activityIndicator stopAnimating];
+
+    UIColor *tint = success ? UIColor.systemGreenColor : UIColor.systemRedColor;
+    self.badge.hidden = NO;
+    self.badge.backgroundColor = tint;
     self.toastIcon.hidden = NO;
-    self.toastIcon.image = [UIImage fbp_symbolNamed:(success ? @"checkmark.circle" : @"xmark.circle")
-                                               size:22];
-    self.toastIcon.tintColor = success ? UIColor.systemGreenColor : UIColor.systemRedColor;
+    self.toastIcon.tintColor = UIColor.whiteColor;
+    self.toastIcon.image = [UIImage fbp_symbolNamed:(success ? @"checkmark" : @"xmark")
+                                               size:13 weight:UIImageSymbolWeightBold];
 
     [self presentIfNeeded];
     [self hideWithDelay:duration];
@@ -161,6 +183,8 @@ static const CGFloat kToastRadius   = 26.0;
 
     self.toastLabel.text = text;
     self.toastIcon.hidden = YES;
+    self.badge.hidden = NO;
+    self.badge.backgroundColor = [FBPTintColor() colorWithAlphaComponent:0.22];
     [self.activityIndicator startAnimating];
     self.toastProgress.hidden = NO;
     [self.toastProgress setProgress:progress animated:NO];
@@ -197,17 +221,16 @@ static const CGFloat kToastRadius   = 26.0;
     if (self.isAnimating) return;
     self.isAnimating = YES;
 
-    [UIView animateWithDuration:0.28
+    [UIView animateWithDuration:0.24
                           delay:0
-         usingSpringWithDamping:1.0
-          initialSpringVelocity:0
                         options:UIViewAnimationOptionCurveEaseIn
                      animations:^{
         self.alpha = 0;
-        self.transform = CGAffineTransformMakeScale(0.9, 0.9);
+        self.transform = CGAffineTransformMakeTranslation(0, 12);
     } completion:^(BOOL finished) {
         [FBPToastManager.shared unregisterToast:self];
         [self removeFromSuperview];
+        self.transform = CGAffineTransformIdentity;
         self.isAnimating = NO;
         if (completion) completion();
     }];
@@ -218,12 +241,14 @@ static const CGFloat kToastRadius   = 26.0;
 - (void)presentIfNeeded {
     if (self.superview) return;
     self.alpha = 0;
-    self.transform = CGAffineTransformMakeScale(0.9, 0.9);
+    // Rise into place from just below, so it reads as sliding up rather than
+    // popping out of a corner.
+    self.transform = CGAffineTransformMakeTranslation(0, 16);
     [FBPToastManager.shared registerToast:self];
-    [UIView animateWithDuration:0.32
+    [UIView animateWithDuration:0.42
                           delay:0
-         usingSpringWithDamping:0.82
-          initialSpringVelocity:0.4
+         usingSpringWithDamping:0.86
+          initialSpringVelocity:0.2
                         options:UIViewAnimationOptionCurveEaseOut
                      animations:^{
         self.alpha = 1;
