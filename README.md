@@ -4,7 +4,7 @@
 
   <p>
     <strong>The ultimate privacy and enhancement tweak for the Facebook iOS app.</strong><br>
-    <em>Quieten your feed, watch stories anonymously, download Reels & Stories, block incoming calls, confirm interactions, and customize the app's appearance.</em>
+    <em>Quieten your feed, watch stories anonymously, download Reels & Stories, block incoming calls, confirm interactions, and customize the app's appearance and font.</em>
   </p>
 
   <p>
@@ -36,7 +36,7 @@
     </tr>
     <tr>
       <td nowrap>🎬 <b>Reels</b></td>
-      <td><b>Hide overlay</b> — one tap strips likes, comments, share & caption, leaving just the clean video<br>Save <b>Reels</b> to Photos</td>
+      <td><b>Hide overlay (cinema mode)</b> — one tap strips likes, comments, share & caption <em>and</em> fades the bottom tab bar, leaving just the clean video<br>Save <b>Reels</b> to Photos</td>
     </tr>
     <tr>
       <td nowrap>📖 <b>Stories</b></td>
@@ -52,7 +52,7 @@
     </tr>
     <tr>
       <td nowrap>🎨 <b>Appearance</b></td>
-      <td><b>OLED Dark Mode</b> (true black — preserves post dividers, rounded avatars & status bar legibility)<br>Custom App-Icon Picker with multiple alternate icons</td>
+      <td><b>OLED Dark Mode</b> (true black — preserves post dividers, rounded avatars & status bar legibility)<br>Custom App-Icon Picker with multiple alternate icons<br><b>Custom Fonts</b> — replace the app's text font with a bundled or imported <code>.ttf</code>/<code>.otf</code>, with an adjustable size</td>
     </tr>
     <tr>
       <td nowrap>🔔 <b>Updates</b></td>
@@ -185,6 +185,7 @@ This writes a per-machine `.clangd` (with your theos path and SDK baked in) and 
 ├── OpenInFacebookSafariExtension  # Safari web extension built into PlugIns ("Open in Facebook")
 ├── resources           # Assets (App icons, SVGs, and asset bundles)
 │   ├── bundle          # Compiled UI images and tweak resources
+│   ├── fonts           # Bundled custom fonts offered by the Fonts picker
 │   ├── logo            # Custom app-icons drop folder for build.sh injection
 │   └── svg             # Source vector graphics
 ├── scripts             # Python utility scripts (e.g., icon merging, svg rendering)
@@ -198,6 +199,7 @@ This writes a per-machine `.clangd` (with your theos path and SDK baked in) and 
 │   │   ├── Confirmations # Opt-in commit-level confirmations (comment, share, post, friend, follow)
 │   │   ├── Downloads   # Reel & Story media downloaders (save to Photos)
 │   │   ├── Feed        # Feed-related hooks (suggestions, Reels, Stories removal)
+│   │   ├── Fonts       # Custom UI font replacement (Core Text registration + picker)
 │   │   ├── Language    # UI language override hooks
 │   │   ├── LikeConfirmation # Confirm likes via the ComponentKit forwarder (feed & Reels)
 │   │   ├── Links       # Open external links in default browser & inbound link bridge
