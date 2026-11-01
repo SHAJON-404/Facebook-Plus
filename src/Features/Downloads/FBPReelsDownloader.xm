@@ -167,6 +167,76 @@ static void FBPUnhideAllOverlays(void) {
     [gHiddenOverlays removeAllObjects];
 }
 
+#pragma mark - Tab bar (cinema mode)
+
+// While cinema mode is on, the bottom tab bar is faded out along with the rest of
+// the Reels chrome, then restored on untoggle or on leaving Reels. Held strongly
+// only while hidden so we can always restore their alpha; cleared on restore.
+static NSMutableSet<UIView *> *gHiddenTabBars = nil;
+
+// Every view that makes up the bottom tab bar's chrome — the icon rows AND the
+// separate background/material/safe-area fills behind them — matched by exact
+// class so content is never touched. Hiding only the icon row left the glass
+// background (FBFloatingTabBarContainerMaterial) as a visible placeholder, so the
+// whole set is listed. "…AndContentView" is deliberately absent: it wraps the
+// entire screen, not just the bar. Covers the classic bar and the iOS 26
+// liquid-glass bars (floating / native).
+static BOOL FBPIsTabBarContainer(UIView *view) {
+    static NSSet<NSString *> *names;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        names = [NSSet setWithArray:@[
+            @"FBTabBarContainerView", @"FBTabBarFloatableContainerView",
+            @"FBTabBarSafeAreaProtectionView", @"FBTabBarVideoSamplingView",
+            @"FBTabBarVideoSamplingBlurView", @"FBTabBarTransitionView", @"FBTabBar",
+            @"FBFloatingTabBar", @"FBFloatingTabBarContainerMaterial",
+            @"FBFloatingTabBarItemView", @"FBNativeTabBar",
+        ]];
+    });
+    return [names containsObject:NSStringFromClass(view.class)];
+}
+
+// Walk the whole window tree, collecting every tab-bar chrome view (icons and
+// backgrounds may be siblings, so we don't stop at the first match).
+static void FBPCollectTabBars(UIView *root, NSMutableArray<UIView *> *out, NSInteger depth) {
+    if (!root || depth > 80) return;
+    if (FBPIsTabBarContainer(root)) [out addObject:root];
+    for (UIView *sub in root.subviews) FBPCollectTabBars(sub, out, depth + 1);
+}
+
+// Fade the window's tab bar(s) out and remember them.
+static void FBPHideTabBars(UIWindow *window) {
+    if (!window) return;
+    if (!gHiddenTabBars) gHiddenTabBars = [NSMutableSet set];
+    NSMutableArray<UIView *> *bars = [NSMutableArray array];
+    FBPCollectTabBars(window, bars, 0);
+    for (UIView *bar in bars) {
+        [gHiddenTabBars addObject:bar];
+        bar.userInteractionEnabled = NO;
+        bar.alpha = 0.0;
+    }
+}
+
+// Cheap per-frame top-up: keep already-found bars faded without re-walking the
+// tree (Facebook's own scroll-driven offset animations don't touch alpha, so one
+// search per enter is enough, but this guards against a stray reset).
+static void FBPReassertHiddenTabBars(void) {
+    if (!gHiddenTabBars) return;
+    for (UIView *bar in gHiddenTabBars) {
+        if (bar.window && bar.alpha > 0.01) bar.alpha = 0.0;
+    }
+}
+
+// Restore every tab bar we faded and forget them.
+static void FBPShowTabBars(void) {
+    if (!gHiddenTabBars || gHiddenTabBars.count == 0) return;
+    for (UIView *bar in gHiddenTabBars) {
+        bar.alpha = 1.0;
+        bar.userInteractionEnabled = YES;
+    }
+    [gHiddenTabBars removeAllObjects];
+}
+
 #pragma mark - Runtime helpers
 
 static id FBPSafeObjectGetter(
@@ -1204,12 +1274,16 @@ static void FBPUpdateHideOverlayButtonIcon(UIButton *button);
 
     gOverlayHidden = !gOverlayHidden;
 
+    UIWindow *window = sender.window;
     if (gOverlayHidden) {
         // Strip the current reel immediately so the tap feels instant; the
         // display-link tracker keeps newly-swiped reels stripped from here on.
-        FBPHideOverlaysForWindow(sender.window);
+        FBPHideOverlaysForWindow(window);
+        // The bottom tab bar is chrome too, so it fades away with the rest.
+        [UIView animateWithDuration:0.2 animations:^{ FBPHideTabBars(window); }];
     } else {
         FBPUnhideAllOverlays();
+        [UIView animateWithDuration:0.2 animations:^{ FBPShowTabBars(); }];
     }
 
     FBPUpdateHideOverlayButtonIcon(sender);
@@ -1776,6 +1850,7 @@ static BOOL FBPPlusSettingsIsPresented(UIWindow *window) {
     // everything so the user is never stuck looking at a stripped reel.
     if (!hideEnabled && gOverlayHidden) {
         FBPUnhideAllOverlays();
+        FBPShowTabBars();
         gOverlayHidden = NO;
         if (toggleButton) FBPUpdateHideOverlayButtonIcon(toggleButton);
     }
@@ -1785,6 +1860,13 @@ static BOOL FBPPlusSettingsIsPresented(UIWindow *window) {
     // still-live Reels hierarchy (long-press tab case).
     if ((!downloaderEnabled && !hideEnabled) ||
         FBPPlusSettingsIsPresented(window)) {
+        // Keep the tab bar faded while settings sits over an active cinema-mode
+        // reel (so returning looks unchanged); otherwise restore it.
+        if (gOverlayHidden && hideEnabled && FBPPlusSettingsIsPresented(window)) {
+            FBPReassertHiddenTabBars();
+        } else {
+            FBPShowTabBars();
+        }
         [self hideButton:downloadButton andToggle:toggleButton];
         self.lastSidebar = nil;
         self.hasLastCandidateFrame = NO;
@@ -1830,11 +1912,22 @@ static BOOL FBPPlusSettingsIsPresented(UIWindow *window) {
     }
 
     if (!bestSidebar) {
+        // No Reel on screen (another tab, feed, etc.) — the tab bar belongs there.
+        FBPShowTabBars();
         [self hideButton:downloadButton andToggle:toggleButton];
         self.lastSidebar = nil;
         self.hasLastCandidateFrame = NO;
         self.stableFrames = 0;
         return;
+    }
+
+    // On a Reel: fade the tab bar in lock-step with cinema mode, restore it when
+    // cinema mode is off.
+    if (gOverlayHidden && hideEnabled) {
+        if (!gHiddenTabBars || gHiddenTabBars.count == 0) FBPHideTabBars(window);
+        else FBPReassertHiddenTabBars();
+    } else {
+        FBPShowTabBars();
     }
 
     // Create only the buttons whose feature is enabled; take down any button
@@ -2114,6 +2207,7 @@ FBPPlayerViewDidDisappear(
         // views never leak a hidden state elsewhere. gOverlayHidden is kept, so
         // returning to Reels re-strips automatically.
         FBPUnhideAllOverlays();
+        FBPShowTabBars();
 
         for (UIScene *scene in
              [UIApplication sharedApplication].connectedScenes) {
