@@ -1,8 +1,8 @@
 {
-  // Logos sources. Set to Objective-C so .xm and .x files get full syntax
-  // highlighting and color theme just like .m and .h files.
+  // Logos sources. Set to Objective-C++ so .xm and .xmi files get full syntax
+  // highlighting and support C++ syntax like extern "C", while .x remains Objective-C.
   "files.associations": {
-    "*.xm": "objective-c",
+    "*.xm": "objective-cpp",
     "*.xmi": "objective-cpp",
     "*.x": "objective-c",
     "*.xi": "objective-c",
