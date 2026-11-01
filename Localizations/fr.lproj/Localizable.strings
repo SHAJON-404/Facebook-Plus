@@ -121,3 +121,17 @@
 "confirm.comment.title" = "Publier le commentaire ?";
 "confirm.comment.message" = "Publier ce commentaire maintenant ?";
 "confirm.comment.verb" = "Publier";
+
+"row.fonts.title" = "Police";
+"row.fonts.desc" = "Change la police du texte de l’app.";
+"fonts.default" = "Défaut";
+"fonts.applied" = "Police %@ appliquée";
+
+"row.suspend.title" = "Fermer l’app";
+"row.suspend.desc" = "Force la fermeture de Facebook ; rouvre-le pour appliquer les changements.";
+"fonts.added" = "Police ajoutée";
+"fonts.importFailed" = "Impossible d’importer la police.";
+"fonts.delete.title" = "Supprimer la police ?";
+"fonts.delete.message" = "« %@ » sera supprimée.";
+"fonts.delete.confirm" = "Supprimer";
+"fonts.deleted" = "Police supprimée";

@@ -121,3 +121,17 @@
 "confirm.comment.title" = "發表留言？";
 "confirm.comment.message" = "要現在發佈這則留言嗎？";
 "confirm.comment.verb" = "發表";
+
+"row.fonts.title" = "字型";
+"row.fonts.desc" = "更改 App 的文字字型。";
+"fonts.default" = "預設";
+"fonts.applied" = "已套用「%@」字型";
+
+"row.suspend.title" = "關閉 App";
+"row.suspend.desc" = "強制關閉 Facebook；重新開啟以套用變更。";
+"fonts.added" = "已新增字型";
+"fonts.importFailed" = "無法匯入字型。";
+"fonts.delete.title" = "刪除字型？";
+"fonts.delete.message" = "將移除「%@」。";
+"fonts.delete.confirm" = "刪除";
+"fonts.deleted" = "已刪除字型";

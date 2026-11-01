@@ -15,6 +15,7 @@
 #import "FBPSheet.h"
 #import "FBPToast.h"
 #import "FBPAppIconController.h"
+#import "FBPFontController.h"
 #import "FBPLanguageController.h"
 #import "FBPWelcomeController.h"
 #import "FBPUpdateChecker.h"
@@ -49,8 +50,10 @@ static NSString *const kSecFooter = @"footer";
 
 static NSString *const kActionClearCache  = @"clearCache";
 static NSString *const kActionAppIcon     = @"appIcon";
+static NSString *const kActionFonts       = @"fonts";
 static NSString *const kActionWelcome     = @"welcome";
 static NSString *const kActionReset       = @"reset";
+static NSString *const kActionSuspend     = @"suspend";
 static NSString *const kActionLanguage    = @"language";
 static NSString *const kActionCheckUpdate = @"checkUpdate";
 
@@ -202,7 +205,15 @@ static UIImage *FBPSettingsIcon(NSString *name) {
     self.view.backgroundColor = FBPPanelColor();
     self.view.tintColor = FBPTintColor();
 
-    self.tableView.backgroundColor = UIColor.clearColor;
+    // In a UITableViewController self.view *is* the table, so the panel colour has
+    // to live on the table itself — setting it clear let the cards show for a
+    // frame over whatever was behind during a push/present, which read as the
+    // background arriving late and a janky slide. A backgroundView keeps the
+    // surface solid through overscroll as well.
+    self.tableView.backgroundColor = FBPPanelColor();
+    UIView *panelBackground = [[UIView alloc] init];
+    panelBackground.backgroundColor = FBPPanelColor();
+    self.tableView.backgroundView = panelBackground;
     self.tableView.separatorInset = UIEdgeInsetsZero;      // full-width hairlines
     self.tableView.separatorColor = [UIColor colorWithWhite:1 alpha:0.08];
     if (@available(iOS 15.0, *)) self.tableView.sectionHeaderTopPadding = 0;
@@ -292,6 +303,7 @@ static UIImage *FBPSettingsIcon(NSString *name) {
         BOOL showChevron = [type isEqualToString:kTypeCategory] ||
                            row[kRowCategory] != nil ||
                            [row[kRowKey] isEqualToString:kActionAppIcon] ||
+                           [row[kRowKey] isEqualToString:kActionFonts] ||
                            [row[kRowKey] isEqualToString:kActionLanguage] ||
                            [row[kRowKey] isEqualToString:kActionWelcome];
         if (showChevron) {
@@ -414,6 +426,7 @@ static NSArray<NSDictionary *> *FBPCategories(void) {
             ]),
             FBPSection(nil, @[
                 FBPActionRow(kActionAppIcon, FBPL(@"row.appicon.title"), FBPL(@"row.appicon.desc"), @"app.badge.fill", NO),
+                FBPActionRow(kActionFonts, FBPL(@"row.fonts.title"), FBPL(@"row.fonts.desc"), @"textformat", NO),
             ]),
         ]},
         @{ kRowTitle : FBPL(@"cat.general.title"), kRowDesc : FBPL(@"cat.general.summary"),
@@ -486,6 +499,8 @@ static NSArray<NSDictionary *> *FBPCategories(void) {
         [self clearCache];
     } else if ([action isEqualToString:kActionAppIcon]) {
         [self.navigationController pushViewController:[[FBPAppIconController alloc] init] animated:YES];
+    } else if ([action isEqualToString:kActionFonts]) {
+        [self.navigationController pushViewController:[[FBPFontController alloc] init] animated:YES];
     } else if ([action isEqualToString:kActionLanguage]) {
         [self.navigationController pushViewController:[[FBPLanguageController alloc] init] animated:YES];
     } else if ([action isEqualToString:kActionCheckUpdate]) {
@@ -611,6 +626,12 @@ static NSArray<NSDictionary *> *FBPCategories(void) {
             FBPInfoRow(FBPL(@"info.github"), @"SHAJON-404", @"github", kGitHubURL),
             FBPInfoRow(FBPL(@"info.telegram"), @"@ReFacebookPlus", @"telegram", kTelegramURL),
         ],
+        // Several options only take effect on a fresh launch, so this sits right
+        // under the info cards as the one-tap way to force-close the app.
+        @[
+            FBPActionRow(kActionSuspend, FBPL(@"row.suspend.title"), FBPL(@"row.suspend.desc"),
+                         @"power", NO),
+        ],
     ];
 }
 
@@ -637,11 +658,28 @@ static NSArray<NSDictionary *> *FBPCategories(void) {
             [[FBPSettingsDetailController alloc] initWithCategory:row] animated:YES];
         return;
     }
+    if ([row[kRowKey] isEqualToString:kActionSuspend]) {
+        [self suspendApp];
+        return;
+    }
     NSString *link = row[kRowLink];
     if (link.length) {
         NSURL *url = [NSURL URLWithString:link];
         if (url) [UIApplication.sharedApplication openURL:url options:@{} completionHandler:nil];
     }
+}
+
+/// Force-closes Facebook: suspends it to the background (so it animates away
+/// like a normal home-button exit rather than vanishing), then terminates the
+/// process. Reopening the app from the home screen gives a clean, fresh launch
+/// that applies any options which only take effect at startup.
+- (void)suspendApp {
+    UIApplication *app = UIApplication.sharedApplication;
+    if ([app respondsToSelector:@selector(suspend)]) {
+        [app performSelector:@selector(suspend)];
+    }
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.45 * NSEC_PER_SEC)),
+                   dispatch_get_main_queue(), ^{ exit(0); });
 }
 
 @end

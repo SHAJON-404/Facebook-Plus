@@ -121,3 +121,17 @@
 "confirm.comment.title" = "Opublikować komentarz?";
 "confirm.comment.message" = "Opublikować ten komentarz teraz?";
 "confirm.comment.verb" = "Opublikuj";
+
+"row.fonts.title" = "Czcionka";
+"row.fonts.desc" = "Zmienia czcionkę tekstu aplikacji.";
+"fonts.default" = "Domyślna";
+"fonts.applied" = "Zastosowano czcionkę %@";
+
+"row.suspend.title" = "Zamknij aplikację";
+"row.suspend.desc" = "Wymusza zamknięcie Facebooka; otwórz go ponownie, aby zastosować zmiany.";
+"fonts.added" = "Dodano czcionkę";
+"fonts.importFailed" = "Nie udało się zaimportować czcionki.";
+"fonts.delete.title" = "Usunąć czcionkę?";
+"fonts.delete.message" = "„%@” zostanie usunięta.";
+"fonts.delete.confirm" = "Usuń";
+"fonts.deleted" = "Czcionka usunięta";

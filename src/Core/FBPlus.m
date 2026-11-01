@@ -9,6 +9,12 @@ static BOOL gFBPConfirmPromptVisible = NO;
 BOOL FBPConfirmPromptVisible(void) { return gFBPConfirmPromptVisible; }
 void FBPSetConfirmPromptVisible(BOOL visible) { gFBPConfirmPromptVisible = visible; }
 
+// Font-replacement self-exclusion guard (see FBPlus.h). Thread-local so building
+// a replacement font on one thread never disables replacement on another.
+static _Thread_local BOOL gFBPFontScopeActive = NO;
+BOOL FBPFontScopeActive(void) { return gFBPFontScopeActive; }
+void FBPSetFontScopeActive(BOOL active) { gFBPFontScopeActive = active; }
+
 NSNotificationName const FBPSettingsDidChangeNotification =
     @"FBPlusSettingsDidChangeNotification";
 NSNotificationName const FBPTabBarVisibilityDidChangeNotification =
@@ -35,6 +41,8 @@ NSString *const FBPKeyAnonymousStories = @"anonymousStories";
 NSString *const FBPKeyNoAutoNext       = @"noAutoNext";
 NSString *const FBPKeyFeedLike         = @"feedLike";
 NSString *const FBPKeyOLED             = @"oledMode";
+NSString *const FBPKeyFont             = @"uiFont";
+NSString *const FBPKeyFontScale        = @"uiFontScale";
 NSString *const FBPKeyLinksInSafari    = @"linksInSafari";
 NSString *const FBPKeyNotifyUpdates    = @"notifyUpdates";
 NSString *const FBPKeyAutoClearCache   = @"autoClearCache";

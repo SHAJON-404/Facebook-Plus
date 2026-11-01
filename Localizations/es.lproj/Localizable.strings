@@ -121,3 +121,17 @@
 "confirm.comment.title" = "¿Publicar comentario?";
 "confirm.comment.message" = "¿Publicar este comentario ahora?";
 "confirm.comment.verb" = "Publicar";
+
+"row.fonts.title" = "Fuente";
+"row.fonts.desc" = "Cambia la fuente del texto de la app.";
+"fonts.default" = "Predeterminada";
+"fonts.applied" = "Fuente %@ aplicada";
+
+"row.suspend.title" = "Cerrar la app";
+"row.suspend.desc" = "Fuerza el cierre de Facebook; vuelve a abrirlo para aplicar los cambios.";
+"fonts.added" = "Fuente añadida";
+"fonts.importFailed" = "No se pudo importar la fuente.";
+"fonts.delete.title" = "¿Eliminar la fuente?";
+"fonts.delete.message" = "Se eliminará «%@».";
+"fonts.delete.confirm" = "Eliminar";
+"fonts.deleted" = "Fuente eliminada";

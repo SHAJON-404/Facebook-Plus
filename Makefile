@@ -37,6 +37,8 @@ FacebookPlus_FILES = \
 	src/Features/Confirmations/FBPActionConfirm.mm \
 	src/Features/AppChrome/FBPChromeHooks.xm \
 	src/Features/OLED/FBPOLEDHooks.xm \
+	src/Features/Fonts/FBPFontHooks.xm \
+	src/Features/Fonts/FBPFontController.m \
 	src/Features/Downloads/FBPReelsDownloader.xm \
 	src/Features/Downloads/FBPStoryDownloader.xm \
 	src/Features/Links/FBPLinkHooks.xm \
@@ -59,10 +61,10 @@ FacebookPlus_CFLAGS  = -fobjc-arc -Wno-deprecated-declarations \
 	-Isrc/Core -Isrc/UI -Isrc/UI/Toast -Isrc/UI/Sheet -Isrc/Settings \
 	-Isrc/Features -Isrc/Features/AppChrome -Isrc/Features/AppIcons \
 	-Isrc/Features/Calls -Isrc/Features/Downloads -Isrc/Features/Feed \
-	-Isrc/Features/Language -Isrc/Features/LikeConfirmation \
+	-Isrc/Features/Fonts -Isrc/Features/Language -Isrc/Features/LikeConfirmation \
 	-Isrc/Features/Links -Isrc/Features/OLED -Isrc/Features/Onboarding \
 	-Isrc/Features/Stories -Isrc/Features/Update -Isrc/PluginsInject
-FacebookPlus_FRAMEWORKS = UIKit Foundation Photos QuartzCore CoreGraphics AVFoundation CoreMedia Security PushKit CallKit
+FacebookPlus_FRAMEWORKS = UIKit Foundation Photos QuartzCore CoreGraphics CoreText AVFoundation CoreMedia Security PushKit CallKit
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 
@@ -140,6 +142,7 @@ compile-commands:
 		echo "    - duplicate_decl_context"; \
 		echo "    - expected_unqualified_id"; \
 		echo "    - err_expected_unqualified"; \
+		echo "    - expected_either"; \
 		echo "    - missing_method_context"; \
 	} > .clangd
 	@echo "==> Recording compile commands with bear…"

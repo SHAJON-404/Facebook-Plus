@@ -121,3 +121,17 @@
 "confirm.comment.title" = "কমেন্ট পোস্ট করবেন?";
 "confirm.comment.message" = "এই কমেন্টটি এখনই প্রকাশ করবেন?";
 "confirm.comment.verb" = "পোস্ট";
+
+"row.fonts.title" = "ফন্ট";
+"row.fonts.desc" = "অ্যাপের লেখার ফন্ট পরিবর্তন করুন।";
+"fonts.default" = "ডিফল্ট";
+"fonts.applied" = "%@ ফন্ট প্রয়োগ হয়েছে";
+
+"row.suspend.title" = "অ্যাপ বন্ধ করুন";
+"row.suspend.desc" = "Facebook জোর করে বন্ধ করে; পরিবর্তন প্রয়োগ করতে আবার খুলুন।";
+"fonts.added" = "ফন্ট যোগ হয়েছে";
+"fonts.importFailed" = "ফন্ট ইম্পোর্ট করা যায়নি।";
+"fonts.delete.title" = "ফন্ট মুছবেন?";
+"fonts.delete.message" = "«%@» সরিয়ে ফেলা হবে।";
+"fonts.delete.confirm" = "মুছুন";
+"fonts.deleted" = "ফন্ট সরানো হয়েছে";

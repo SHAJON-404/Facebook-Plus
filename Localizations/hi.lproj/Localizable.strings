@@ -121,3 +121,17 @@
 "confirm.comment.title" = "कमेंट पोस्ट करें?";
 "confirm.comment.message" = "यह कमेंट अभी पोस्ट करें?";
 "confirm.comment.verb" = "पोस्ट";
+
+"row.fonts.title" = "फ़ॉन्ट";
+"row.fonts.desc" = "ऐप के टेक्स्ट का फ़ॉन्ट बदलें।";
+"fonts.default" = "ड़िफ़ॉल्ट";
+"fonts.applied" = "%@ फ़ॉन्ट लागू किया गया";
+
+"row.suspend.title" = "ऐप बंद करें";
+"row.suspend.desc" = "Facebook को ज़बरदस्ती बंद करें; बदलाव लागू करने के लिए फिर से खोलें।";
+"fonts.added" = "फ़ॉन्ट जोड़ा गया";
+"fonts.importFailed" = "फ़ॉन्ट आयात नहीं किया जा सका।";
+"fonts.delete.title" = "फ़ॉन्ट हटाएं?";
+"fonts.delete.message" = "«%@» हटा दिया जाएगा।";
+"fonts.delete.confirm" = "हटाएं";
+"fonts.deleted" = "फ़ॉन्ट हटाया गया";

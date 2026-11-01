@@ -121,3 +121,17 @@
 "confirm.comment.title" = "Опубликовать комментарий?";
 "confirm.comment.message" = "Опубликовать этот комментарий сейчас?";
 "confirm.comment.verb" = "Опубликовать";
+
+"row.fonts.title" = "Шрифт";
+"row.fonts.desc" = "Меняет шрифт текста приложения.";
+"fonts.default" = "По умолчанию";
+"fonts.applied" = "Шрифт «%@» применён";
+
+"row.suspend.title" = "Закрыть приложение";
+"row.suspend.desc" = "Принудительно закрывает Facebook; откройте снова, чтобы применить изменения.";
+"fonts.added" = "Шрифт добавлен";
+"fonts.importFailed" = "Не удалось импортировать шрифт.";
+"fonts.delete.title" = "Удалить шрифт?";
+"fonts.delete.message" = "«%@» будет удалён.";
+"fonts.delete.confirm" = "Удалить";
+"fonts.deleted" = "Шрифт удалён";

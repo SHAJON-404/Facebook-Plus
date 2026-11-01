@@ -81,6 +81,8 @@ extern NSString *const FBPKeyFeedLike;          // Confirm every like (feed + Re
 
 // Appearance
 extern NSString *const FBPKeyOLED;              // True-black background in dark mode
+extern NSString *const FBPKeyFont;              // Chosen UI font family ("" / unset = original)
+extern NSString *const FBPKeyFontScale;         // Custom-font size multiplier ("" / unset = 1.0)
 
 // Links
 extern NSString *const FBPKeyLinksInSafari;     // Open external links in the default browser
@@ -105,6 +107,21 @@ extern "C" {
 #endif
 BOOL FBPConfirmPromptVisible(void);
 void FBPSetConfirmPromptVisible(BOOL visible);
+#ifdef __cplusplus
+}
+#endif
+
+#pragma mark - Fonts
+
+/// Reentrancy / self-exclusion guard for the font-replacement hooks. The tweak's
+/// own UI (FBPFont) and the font hooks themselves build UIFont objects; this latch
+/// is raised around that work so those requests fall through to the original font
+/// instead of being recursively replaced. Only Facebook's own text is swapped.
+#ifdef __cplusplus
+extern "C" {
+#endif
+BOOL FBPFontScopeActive(void);
+void FBPSetFontScopeActive(BOOL active);
 #ifdef __cplusplus
 }
 #endif

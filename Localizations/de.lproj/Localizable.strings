@@ -121,3 +121,17 @@
 "confirm.comment.title" = "Kommentar posten?";
 "confirm.comment.message" = "Diesen Kommentar jetzt posten?";
 "confirm.comment.verb" = "Posten";
+
+"row.fonts.title" = "Schrift";
+"row.fonts.desc" = "Ändert die Textschrift der App.";
+"fonts.default" = "Standard";
+"fonts.applied" = "Schrift „%@“ übernommen";
+
+"row.suspend.title" = "App beenden";
+"row.suspend.desc" = "Facebook erzwungen schließen; zum Anwenden erneut öffnen.";
+"fonts.added" = "Schrift hinzugefügt";
+"fonts.importFailed" = "Schrift konnte nicht importiert werden.";
+"fonts.delete.title" = "Schrift löschen?";
+"fonts.delete.message" = "„%@“ wird entfernt.";
+"fonts.delete.confirm" = "Löschen";
+"fonts.deleted" = "Schrift entfernt";

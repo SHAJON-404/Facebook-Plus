@@ -121,3 +121,17 @@
 "confirm.comment.title" = "发表评论？";
 "confirm.comment.message" = "现在就发布这条评论吗？";
 "confirm.comment.verb" = "发表";
+
+"row.fonts.title" = "字体";
+"row.fonts.desc" = "更改应用的文字字体。";
+"fonts.default" = "默认";
+"fonts.applied" = "已应用“%@”字体";
+
+"row.suspend.title" = "关闭应用";
+"row.suspend.desc" = "强制关闭 Facebook；重新打开以应用更改。";
+"fonts.added" = "已添加字体";
+"fonts.importFailed" = "无法导入字体。";
+"fonts.delete.title" = "删除字体？";
+"fonts.delete.message" = "将移除“%@”。";
+"fonts.delete.confirm" = "删除";
+"fonts.deleted" = "已删除字体";

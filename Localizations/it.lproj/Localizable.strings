@@ -121,3 +121,17 @@
 "confirm.comment.title" = "Pubblicare il commento?";
 "confirm.comment.message" = "Pubblicare questo commento ora?";
 "confirm.comment.verb" = "Pubblica";
+
+"row.fonts.title" = "Carattere";
+"row.fonts.desc" = "Cambia il carattere del testo dell’app.";
+"fonts.default" = "Predefinito";
+"fonts.applied" = "Carattere %@ applicato";
+
+"row.suspend.title" = "Chiudi l’app";
+"row.suspend.desc" = "Forza la chiusura di Facebook; riaprilo per applicare le modifiche.";
+"fonts.added" = "Carattere aggiunto";
+"fonts.importFailed" = "Impossibile importare il carattere.";
+"fonts.delete.title" = "Eliminare il carattere?";
+"fonts.delete.message" = "«%@» verrà rimosso.";
+"fonts.delete.confirm" = "Elimina";
+"fonts.deleted" = "Carattere eliminato";

@@ -121,3 +121,17 @@
 "confirm.comment.title" = "نشر التعليق؟";
 "confirm.comment.message" = "نشر هذا التعليق الآن؟";
 "confirm.comment.verb" = "نشر";
+
+"row.fonts.title" = "الخط";
+"row.fonts.desc" = "تغيير خط نص التطبيق.";
+"fonts.default" = "افتراضي";
+"fonts.applied" = "تم تطبيق خط %@";
+
+"row.suspend.title" = "تعليق التطبيق";
+"row.suspend.desc" = "أغلق Facebook إجبارياً؛ أعد فتحه لتطبيق التغييرات.";
+"fonts.added" = "تمت إضافة الخط";
+"fonts.importFailed" = "تعذّر استيراد الخط.";
+"fonts.delete.title" = "حذف الخط؟";
+"fonts.delete.message" = "ستتم إزالة «%@».";
+"fonts.delete.confirm" = "حذف";
+"fonts.deleted" = "تمت إزالة الخط";

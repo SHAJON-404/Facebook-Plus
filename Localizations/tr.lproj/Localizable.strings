@@ -121,3 +121,17 @@
 "confirm.comment.title" = "Yorum yayınlansın mı?";
 "confirm.comment.message" = "Bu yorum şimdi yayınlansın mı?";
 "confirm.comment.verb" = "Yayınla";
+
+"row.fonts.title" = "Yazı Tipi";
+"row.fonts.desc" = "Uygulamanın metin yazı tipini değiştirir.";
+"fonts.default" = "Varsayılan";
+"fonts.applied" = "%@ yazı tipi uygulandı";
+
+"row.suspend.title" = "Uygulamayı Kapat";
+"row.suspend.desc" = "Facebook’u zorla kapatır; değişiklikleri uygulamak için yeniden açın.";
+"fonts.added" = "Yazı tipi eklendi";
+"fonts.importFailed" = "Yazı tipi içe aktarılamadı.";
+"fonts.delete.title" = "Yazı Tipi Silinsin mi?";
+"fonts.delete.message" = "«%@» kaldırılacak.";
+"fonts.delete.confirm" = "Sil";
+"fonts.deleted" = "Yazı tipi silindi";

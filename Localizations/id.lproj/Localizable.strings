@@ -121,3 +121,17 @@
 "confirm.comment.title" = "Kirim komentar?";
 "confirm.comment.message" = "Terbitkan komentar ini sekarang?";
 "confirm.comment.verb" = "Kirim";
+
+"row.fonts.title" = "Font";
+"row.fonts.desc" = "Ubah font teks aplikasi.";
+"fonts.default" = "Default";
+"fonts.applied" = "Font %@ diterapkan";
+
+"row.suspend.title" = "Tutup Paksa Aplikasi";
+"row.suspend.desc" = "Menutup paksa Facebook; buka lagi untuk menerapkan perubahan.";
+"fonts.added" = "Font ditambahkan";
+"fonts.importFailed" = "Gagal mengimpor font.";
+"fonts.delete.title" = "Hapus Font?";
+"fonts.delete.message" = "«%@» akan dihapus.";
+"fonts.delete.confirm" = "Hapus";
+"fonts.deleted" = "Font dihapus";

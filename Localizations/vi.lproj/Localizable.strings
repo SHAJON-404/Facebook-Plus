@@ -121,3 +121,17 @@
 "confirm.comment.title" = "Đăng bình luận?";
 "confirm.comment.message" = "Đăng bình luận này ngay bây giờ?";
 "confirm.comment.verb" = "Đăng";
+
+"row.fonts.title" = "Phông chữ";
+"row.fonts.desc" = "Đổi phông chữ văn bản của ứng dụng.";
+"fonts.default" = "Mặc định";
+"fonts.applied" = "Đã áp dụng phông chữ %@";
+
+"row.suspend.title" = "Thoát ứng dụng";
+"row.suspend.desc" = "Buộc đóng Facebook; mở lại để áp dụng thay đổi.";
+"fonts.added" = "Đã thêm phông chữ";
+"fonts.importFailed" = "Không thể nhập phông chữ.";
+"fonts.delete.title" = "Xóa phông chữ?";
+"fonts.delete.message" = "«%@» sẽ bị xóa.";
+"fonts.delete.confirm" = "Xóa";
+"fonts.deleted" = "Đã xóa phông chữ";

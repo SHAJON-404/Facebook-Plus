@@ -121,3 +121,17 @@
 "confirm.comment.title" = "コメントを投稿しますか？";
 "confirm.comment.message" = "このコメントを今すぐ投稿しますか？";
 "confirm.comment.verb" = "投稿";
+
+"row.fonts.title" = "フォント";
+"row.fonts.desc" = "アプリの文字フォントを変更します。";
+"fonts.default" = "デフォルト";
+"fonts.applied" = "%@ フォントを適用しました";
+
+"row.suspend.title" = "アプリを終了";
+"row.suspend.desc" = "Facebook を強制終了します。変更を適用するには開き直してください。";
+"fonts.added" = "フォントを追加しました";
+"fonts.importFailed" = "フォントを読み込めませんでした。";
+"fonts.delete.title" = "フォントを削除しますか？";
+"fonts.delete.message" = "「%@」を削除します。";
+"fonts.delete.confirm" = "削除";
+"fonts.deleted" = "フォントを削除しました";

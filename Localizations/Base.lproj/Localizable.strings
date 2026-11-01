@@ -121,3 +121,17 @@
 "confirm.comment.title" = "Post comment?";
 "confirm.comment.message" = "Publish this comment now?";
 "confirm.comment.verb" = "Post";
+
+"row.fonts.title" = "Font";
+"row.fonts.desc" = "Change the app’s text font.";
+"fonts.default" = "Default";
+"fonts.applied" = "%@ font applied";
+
+"row.suspend.title" = "Suspend App";
+"row.suspend.desc" = "Force-close Facebook; reopen it to apply changes.";
+"fonts.added" = "Font added";
+"fonts.importFailed" = "Couldn’t import the font.";
+"fonts.delete.title" = "Delete Font?";
+"fonts.delete.message" = "“%@” will be removed.";
+"fonts.delete.confirm" = "Delete";
+"fonts.deleted" = "Font removed";
