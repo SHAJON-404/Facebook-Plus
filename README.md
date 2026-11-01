@@ -65,20 +65,6 @@
 
 ---
 
-## 🗺️ Roadmap & Credits
-
-Planned features and fixes, together with the project's provenance and credits,
-are documented in **[ROADMAP_AND_CREDITS.md](ROADMAP_AND_CREDITS.md)**.
-Contributions and suggestions are welcome — open an issue or a pull request.
-
----
-
-## 🔒 Security & Disclaimer
-
-Please read **[SECURITY.md](SECURITY.md)** for our security policy, account safety guidelines, and disclaimer of warranty/liability. Use Facebook Plus at your own risk.
-
----
-
 ## 🚀 Installation
 
 Download the pre-built `.ipa` file from the **[Releases](../../releases)** section and install it on your device using **Feather**, **Ksing**, **AltStore**, **TrollStore**, or any other sideloading tool of your choice.
@@ -217,10 +203,17 @@ This writes a per-machine `.clangd` (with your theos path and SDK baked in) and 
 
 **Resilient Hooking:** Each hook dynamically verifies that its target class and selector exist before installation. If a Facebook update changes a specific class, only that single feature degrades safely without crashing the entire tweak. The settings gesture, for example, hooks both the classic tab bar and the new iOS 26 liquid-glass bars so long-press keeps working across iOS versions.
 
-## 📜 Provenance & Credits
+---
 
-Third-party code, inspirations, and attributions are documented in
-**[ROADMAP_AND_CREDITS.md](ROADMAP_AND_CREDITS.md)**.
+## 🗺️ Roadmap & Credits
+
+Planned features and fixes, together with the project's provenance, third-party
+attributions, and credits, are documented in **[ROADMAP_AND_CREDITS.md](ROADMAP_AND_CREDITS.md)**.
+Contributions and suggestions are welcome — open an issue or a pull request.
+
+## 🔒 Security & Disclaimer
+
+Please read **[SECURITY.md](SECURITY.md)** for our security policy, account safety guidelines, and disclaimer of warranty/liability. Use Facebook Plus at your own risk.
 
 ## ⚖️ License
 
